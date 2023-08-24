@@ -2041,7 +2041,7 @@ PythonBuiltin = {
                                         }
                                     }
                                     else {
-                                        commitFunction();
+                                        RequireNotEmpty(WorkerMessageChannel.internal.pen).commit();
                                     }
                                     PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
                                 };
