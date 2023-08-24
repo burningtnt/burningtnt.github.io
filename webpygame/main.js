@@ -308,20 +308,28 @@ class App {
                 });
                 this.uiCanvas.addEventListener("touchstart", (ev) => {
                     ev.preventDefault();
-                    this.postMessage({
-                        "messageType": MessageType.M2W.Mouse.MouseDown,
-                        "messageBody": {
-                            "pos": [ev.touches[0].clientX / document.documentElement.clientWidth * this.uiCanvas.width, ev.touches[0].clientY / document.documentElement.clientHeight * this.uiCanvas.height]
-                        }
-                    });
+                    if (document.fullscreenElement == this.uiCanvas) {
+                        this.postMessage({
+                            "messageType": MessageType.M2W.Mouse.MouseDown,
+                            "messageBody": {
+                                "pos": [ev.touches[0].clientX / document.documentElement.clientWidth * this.uiCanvas.width, ev.touches[0].clientY / document.documentElement.clientHeight * this.uiCanvas.height]
+                            }
+                        });
+                    }
+                    else {
+                        this.postMessage({
+                            "messageType": MessageType.M2W.Mouse.MouseDown,
+                            "messageBody": {
+                                "pos": [ev.touches[0].clientX, ev.touches[0].clientY]
+                            }
+                        });
+                    }
                 });
                 this.uiCanvas.addEventListener("touchend", (ev) => {
                     ev.preventDefault();
                     this.postMessage({
                         "messageType": MessageType.M2W.Mouse.MouseUp,
-                        "messageBody": {
-                            "pos": [ev.touches[0].clientX / document.documentElement.clientWidth * this.uiCanvas.width, ev.touches[0].clientY / document.documentElement.clientHeight * this.uiCanvas.height]
-                        }
+                        "messageBody": null
                     });
                 });
             };
