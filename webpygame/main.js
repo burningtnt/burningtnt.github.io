@@ -357,3 +357,8 @@ document.documentElement.addEventListener("mousedown", () => {
         WebPygame.launch(() => console.error("ERROR!"), false);
     }
 });
+document.documentElement.addEventListener("touchstart", () => {
+    if (!WebPygame.haslaunched()) {
+        WebPygame.launch(() => console.error("ERROR!"), false);
+    }
+});
