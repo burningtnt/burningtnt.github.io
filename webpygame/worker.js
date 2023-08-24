@@ -1539,7 +1539,7 @@ PythonBuiltin = {
                                     PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
                                 }
                                 let text = buffer;
-                                ctx.font = size.toString() + "px";
+                                ctx.font = size.value.toString() + "px sans-serif";
                                 ctx.fillStyle = StringFormat("rgb({},{},{})", [
                                     color.value[0].value.toString(),
                                     color.value[1].value.toString(),
@@ -1639,7 +1639,7 @@ PythonBuiltin = {
                                                         PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'font.Font@instance.render', PyObjectMethods.py_function_call)));
                                                     }
                                                     let text = buffer;
-                                                    RequireNotEmpty(WorkerMessageChannel.internal.pen).font = font.storage.toString() + "px";
+                                                    RequireNotEmpty(WorkerMessageChannel.internal.pen).font = font.storage.toString() + "px sans-serif";
                                                     let ctx = RequireNotEmpty(new OffscreenCanvas(RequireNotEmpty(WorkerMessageChannel.internal.pen).measureText(text.value).width, font.storage).getContext("2d"));
                                                     ctx.fillStyle = StringFormat("rgb({},{},{})", [
                                                         color.value[0].value.toString(),

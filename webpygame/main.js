@@ -180,9 +180,15 @@ class App {
     }
     launch(onError, showConsole) {
         this.launched = true;
-        if (SharedArrayBuffer === null || SharedArrayBuffer === undefined) {
+        if (SharedArrayBuffer == undefined) {
             onError();
             return;
+        }
+        if (HTMLCanvasElement.prototype.transferControlToOffscreen == undefined || OffscreenCanvasRenderingContext2D.prototype.commit == undefined) {
+            if (ImageBitmapRenderingContext == undefined || ImageBitmapRenderingContext.prototype.transferFromImageBitmap == undefined) {
+                onError();
+                return;
+            }
         }
         if (showConsole == false) {
             this.consoleCanvas.style.display = "none";
@@ -196,7 +202,6 @@ class App {
         let worker = this.workerProvider();
         worker.onmessage = (ev) => {
             if (ev.data.messageType != MessageType.W2M.LifeCycle.RequestInitMessageChannel) {
-                onError();
                 return;
             }
             this.uiCanvas.width = ev.data.messageBody[0];
@@ -204,7 +209,6 @@ class App {
             Atomics.store(uint8Array, 0, MessageType.STATUS.MAIN_ACCESS);
             worker.onmessage = (ev) => {
                 if (ev.data.messageType !== MessageType.W2M.LifeCycle.ConnectionOK) {
-                    onError();
                     return;
                 }
                 this.messagePosterDelegate = () => {
@@ -373,11 +377,11 @@ class App {
 var WebPygame = new App(RequireNotEmpty(document.getElementById("consoleCanvas")), RequireNotEmpty(document.getElementById("guiCanvas")), () => new Worker("worker.js"));
 document.documentElement.addEventListener("mousedown", () => {
     if (!WebPygame.haslaunched()) {
-        WebPygame.launch(() => console.error("ERROR!"), false);
+        WebPygame.launch(() => alert("Unsupported browser!"), false);
     }
 });
 document.documentElement.addEventListener("touchstart", () => {
     if (!WebPygame.haslaunched()) {
-        WebPygame.launch(() => console.error("ERROR!"), false);
+        WebPygame.launch(() => console.error("Unsupported browser!"), false);
     }
 });

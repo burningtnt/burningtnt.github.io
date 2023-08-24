@@ -16,7 +16,7 @@
              30 STORE_NAME               3 (webpygame)
 
   3          32 LOAD_BUILD_CLASS
-             34 LOAD_CONST               2 (<code object CLS_box at 0x03100B78, file "<dis>", line 3>)
+             34 LOAD_CONST               2 (<code object CLS_box at 0x0338D3E8, file "<dis>", line 3>)
              36 LOAD_CONST               3 ('CLS_box')
              38 MAKE_FUNCTION            0
              40 LOAD_CONST               3 ('CLS_box')
@@ -24,7 +24,7 @@
              44 CALL_FUNCTION            3
              46 STORE_NAME               5 (CLS_box)
 
- 14          48 LOAD_CONST               4 (<code object create_box at 0x03100BD0, file "<dis>", line 14>)
+ 14          48 LOAD_CONST               4 (<code object create_box at 0x0338D440, file "<dis>", line 14>)
              50 LOAD_CONST               5 ('create_box')
              52 MAKE_FUNCTION            0
              54 STORE_NAME               6 (create_box)
@@ -69,7 +69,7 @@
             116 LOAD_ATTR               18 (font)
             118 LOAD_METHOD             19 (Font)
             120 LOAD_CONST               1 (None)
-            122 LOAD_CONST               9 (32)
+            122 LOAD_CONST               9 (80)
             124 CALL_METHOD              2
             126 STORE_NAME              18 (font)
 
@@ -149,7 +149,7 @@
             252 STORE_NAME              34 (timeStart)
 
  55         254 EXTENDED_ARG             4
-            256 SETUP_LOOP            1062 (to 1320)
+            256 SETUP_LOOP            1174 (to 1432)
 
  56     >>  258 EXTENDED_ARG             1
             260 SETUP_LOOP             332 (to 594)
@@ -375,11 +375,11 @@
             648 POP_TOP
 
  85     >>  650 EXTENDED_ARG             2
-            652 SETUP_LOOP             626 (to 1280)
+            652 SETUP_LOOP             738 (to 1392)
             654 LOAD_NAME               26 (boxList)
             656 GET_ITER
         >>  658 EXTENDED_ARG             2
-            660 FOR_ITER               616 (to 1278)
+            660 FOR_ITER               728 (to 1390)
             662 STORE_NAME              30 (b)
 
  86         664 LOAD_NAME               30 (b)
@@ -693,86 +693,148 @@
            1222 CALL_METHOD              1
            1224 EXTENDED_ARG             2
            1226 POP_JUMP_IF_FALSE      658
-           1228 LOAD_CONST              10 (False)
-           1230 EXTENDED_ARG             2
-           1232 POP_JUMP_IF_FALSE      658
 
-116        1234 LOAD_NAME               67 (print)
-           1236 LOAD_CONST              27 ('score:')
-           1238 LOAD_NAME                0 (pygame)
-           1240 LOAD_ATTR               15 (time)
-           1242 LOAD_METHOD             33 (get_ticks)
-           1244 CALL_METHOD              0
-           1246 LOAD_NAME               34 (timeStart)
-           1248 BINARY_SUBTRACT
-           1250 LOAD_CONST              28 (1000)
-           1252 BINARY_TRUE_DIVIDE
-           1254 CALL_FUNCTION            2
-           1256 POP_TOP
+116        1228 LOAD_NAME               67 (print)
+           1230 LOAD_CONST              27 ('score:')
+           1232 LOAD_NAME                0 (pygame)
+           1234 LOAD_ATTR               15 (time)
+           1236 LOAD_METHOD             33 (get_ticks)
+           1238 CALL_METHOD              0
+           1240 LOAD_NAME               34 (timeStart)
+           1242 BINARY_SUBTRACT
+           1244 LOAD_CONST              28 (1000)
+           1246 BINARY_TRUE_DIVIDE
+           1248 CALL_FUNCTION            2
+           1250 POP_TOP
 
-117        1258 LOAD_NAME                0 (pygame)
-           1260 LOAD_METHOD             39 (quit)
-           1262 CALL_METHOD              0
-           1264 POP_TOP
+117        1252 LOAD_NAME                3 (webpygame)
+           1254 LOAD_ATTR               68 (render)
+           1256 LOAD_METHOD             69 (renderText)
+           1258 LOAD_NAME               70 (str)
+           1260 LOAD_NAME                0 (pygame)
+           1262 LOAD_ATTR               15 (time)
+           1264 LOAD_METHOD             33 (get_ticks)
+           1266 CALL_METHOD              0
+           1268 LOAD_NAME               34 (timeStart)
+           1270 BINARY_SUBTRACT
+           1272 LOAD_CONST              28 (1000)
+           1274 BINARY_TRUE_DIVIDE
+           1276 CALL_FUNCTION            1
+           1278 LOAD_CONST              29 ('s')
+           1280 BINARY_ADD
+           1282 LOAD_NAME               13 (screen)
+           1284 LOAD_NAME                8 (SCREEN_W)
+           1286 LOAD_CONST              12 (2)
+           1288 BINARY_TRUE_DIVIDE
+           1290 LOAD_NAME                9 (SCREEN_H)
+           1292 LOAD_CONST              12 (2)
+           1294 BINARY_TRUE_DIVIDE
+           1296 BUILD_TUPLE              2
+           1298 LOAD_CONST              30 ((0, 0, 255))
+           1300 LOAD_CONST               9 (80)
+           1302 CALL_METHOD              5
+           1304 POP_TOP
 
-118        1266 LOAD_NAME                1 (sys)
-           1268 LOAD_METHOD             40 (exit)
-           1270 CALL_METHOD              0
-           1272 POP_TOP
-           1274 EXTENDED_ARG             2
-           1276 JUMP_ABSOLUTE          658
-        >> 1278 POP_BLOCK
+118        1306 SETUP_LOOP              78 (to 1386)
 
-122     >> 1280 LOAD_NAME               20 (cheat)
-           1282 LOAD_CONST              29 (7)
-           1284 BINARY_SUBSCR
-           1286 LOAD_CONST              10 (False)
-           1288 COMPARE_OP               2 (==)
-           1290 EXTENDED_ARG             5
-           1292 POP_JUMP_IF_FALSE     1304
+119     >> 1308 SETUP_LOOP              50 (to 1360)
+           1310 LOAD_NAME                0 (pygame)
+           1312 LOAD_ATTR               35 (event)
+           1314 LOAD_METHOD             36 (get)
+           1316 CALL_METHOD              0
+           1318 GET_ITER
+        >> 1320 FOR_ITER                36 (to 1358)
+           1322 STORE_NAME              35 (event)
 
-123        1294 LOAD_NAME                0 (pygame)
-           1296 LOAD_ATTR               11 (display)
-           1298 LOAD_METHOD             68 (update)
-           1300 CALL_METHOD              0
-           1302 POP_TOP
+120        1324 LOAD_NAME               35 (event)
+           1326 LOAD_ATTR               37 (type)
+           1328 LOAD_NAME                0 (pygame)
+           1330 LOAD_ATTR               38 (QUIT)
+           1332 COMPARE_OP               2 (==)
+           1334 EXTENDED_ARG             5
+           1336 POP_JUMP_IF_FALSE     1320
 
-124     >> 1304 LOAD_NAME               17 (clock)
-           1306 LOAD_METHOD             69 (tick)
-           1308 LOAD_CONST              30 (24)
-           1310 CALL_METHOD              1
-           1312 POP_TOP
-           1314 EXTENDED_ARG             1
-           1316 JUMP_ABSOLUTE          258
-           1318 POP_BLOCK
-        >> 1320 LOAD_CONST               1 (None)
-           1322 RETURN_VALUE
+121        1338 LOAD_NAME                0 (pygame)
+           1340 LOAD_METHOD             39 (quit)
+           1342 CALL_METHOD              0
+           1344 POP_TOP
 
-Disassembly of <code object CLS_box at 0x03100B78, file "<dis>", line 3>:
+122        1346 LOAD_NAME                1 (sys)
+           1348 LOAD_METHOD             40 (exit)
+           1350 CALL_METHOD              0
+           1352 POP_TOP
+           1354 EXTENDED_ARG             5
+           1356 JUMP_ABSOLUTE         1320
+        >> 1358 POP_BLOCK
+
+123     >> 1360 LOAD_NAME                0 (pygame)
+           1362 LOAD_ATTR               11 (display)
+           1364 LOAD_METHOD             71 (update)
+           1366 CALL_METHOD              0
+           1368 POP_TOP
+
+124        1370 LOAD_NAME               17 (clock)
+           1372 LOAD_METHOD             72 (tick)
+           1374 LOAD_CONST              31 (24)
+           1376 CALL_METHOD              1
+           1378 POP_TOP
+           1380 EXTENDED_ARG             5
+           1382 JUMP_ABSOLUTE         1308
+           1384 POP_BLOCK
+        >> 1386 EXTENDED_ARG             2
+           1388 JUMP_ABSOLUTE          658
+        >> 1390 POP_BLOCK
+
+127     >> 1392 LOAD_NAME               20 (cheat)
+           1394 LOAD_CONST              32 (7)
+           1396 BINARY_SUBSCR
+           1398 LOAD_CONST              10 (False)
+           1400 COMPARE_OP               2 (==)
+           1402 EXTENDED_ARG             5
+           1404 POP_JUMP_IF_FALSE     1416
+
+128        1406 LOAD_NAME                0 (pygame)
+           1408 LOAD_ATTR               11 (display)
+           1410 LOAD_METHOD             71 (update)
+           1412 CALL_METHOD              0
+           1414 POP_TOP
+
+129     >> 1416 LOAD_NAME               17 (clock)
+           1418 LOAD_METHOD             72 (tick)
+           1420 LOAD_CONST              31 (24)
+           1422 CALL_METHOD              1
+           1424 POP_TOP
+           1426 EXTENDED_ARG             1
+           1428 JUMP_ABSOLUTE          258
+           1430 POP_BLOCK
+        >> 1432 LOAD_CONST               1 (None)
+           1434 RETURN_VALUE
+
+Disassembly of <code object CLS_box at 0x0338D3E8, file "<dis>", line 3>:
   3           0 LOAD_NAME                0 (__name__)
               2 STORE_NAME               1 (__module__)
               4 LOAD_CONST               0 ('CLS_box')
               6 STORE_NAME               2 (__qualname__)
 
   4           8 LOAD_CONST               9 (((255, 255, 255),))
-             10 LOAD_CONST               2 (<code object __init__ at 0x03100A70, file "<dis>", line 4>)
+             10 LOAD_CONST               2 (<code object __init__ at 0x0338D390, file "<dis>", line 4>)
              12 LOAD_CONST               3 ('CLS_box.__init__')
              14 MAKE_FUNCTION            1
              16 STORE_NAME               3 (__init__)
 
-  8          18 LOAD_CONST               4 (<code object draw at 0x03100AC8, file "<dis>", line 8>)
+  8          18 LOAD_CONST               4 (<code object draw at 0x0338D288, file "<dis>", line 8>)
              20 LOAD_CONST               5 ('CLS_box.draw')
              22 MAKE_FUNCTION            0
              24 STORE_NAME               4 (draw)
 
- 10          26 LOAD_CONST               6 (<code object move at 0x03100B20, file "<dis>", line 10>)
+ 10          26 LOAD_CONST               6 (<code object move at 0x0338D2E0, file "<dis>", line 10>)
              28 LOAD_CONST               7 ('CLS_box.move')
              30 MAKE_FUNCTION            0
              32 STORE_NAME               5 (move)
              34 LOAD_CONST               8 (None)
              36 RETURN_VALUE
 
-Disassembly of <code object __init__ at 0x03100A70, file "<dis>", line 4>:
+Disassembly of <code object __init__ at 0x0338D390, file "<dis>", line 4>:
   5           0 LOAD_GLOBAL              0 (pygame)
               2 LOAD_METHOD              1 (Rect)
               4 LOAD_FAST                1 (rect)
@@ -790,7 +852,7 @@ Disassembly of <code object __init__ at 0x03100A70, file "<dis>", line 4>:
              24 LOAD_CONST               0 (None)
              26 RETURN_VALUE
 
-Disassembly of <code object draw at 0x03100AC8, file "<dis>", line 8>:
+Disassembly of <code object draw at 0x0338D288, file "<dis>", line 8>:
   9           0 LOAD_GLOBAL              0 (pygame)
               2 LOAD_ATTR                1 (draw)
               4 LOAD_METHOD              2 (rect)
@@ -805,7 +867,7 @@ Disassembly of <code object draw at 0x03100AC8, file "<dis>", line 8>:
              22 LOAD_CONST               0 (None)
              24 RETURN_VALUE
 
-Disassembly of <code object move at 0x03100B20, file "<dis>", line 10>:
+Disassembly of <code object move at 0x0338D2E0, file "<dis>", line 10>:
  11           0 LOAD_FAST                0 (self)
               2 LOAD_ATTR                0 (speed)
               4 LOAD_CONST               1 (0)
@@ -832,7 +894,7 @@ Disassembly of <code object move at 0x03100B20, file "<dis>", line 10>:
              44 LOAD_CONST               0 (None)
              46 RETURN_VALUE
 
-Disassembly of <code object create_box at 0x03100BD0, file "<dis>", line 14>:
+Disassembly of <code object create_box at 0x0338D440, file "<dis>", line 14>:
  15           0 SETUP_LOOP             104 (to 106)
 
  16     >>    2 LOAD_GLOBAL              0 (random)
