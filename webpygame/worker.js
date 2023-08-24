@@ -2023,10 +2023,29 @@ PythonBuiltin = {
                         "attr": {},
                         "py_function_call": {
                             "argNum": [0],
-                            "method": function () {
-                                RequireNotEmpty(WorkerMessageChannel.internal.pen).commit();
-                                PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
-                            }
+                            "method": (function () {
+                                let firstTime = false;
+                                return () => {
+                                    let commitFunction = RequireNotEmpty(WorkerMessageChannel.internal.pen).commit;
+                                    if (commitFunction == undefined) {
+                                        if (firstTime) {
+                                            WorkerMessageChannel.postMessage({
+                                                "messageType": WorkerMessageChannel.MessageType.W2M.Console.Stdout,
+                                                "messageBody": "WebPygame Renderer can't commit the OffscreenCanvas.\n"
+                                            });
+                                            WorkerMessageChannel.postMessage({
+                                                "messageType": WorkerMessageChannel.MessageType.W2M.Console.Flush,
+                                                "messageBody": null
+                                            });
+                                            firstTime = true;
+                                        }
+                                    }
+                                    else {
+                                        commitFunction();
+                                    }
+                                    PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
+                                };
+                            })()
                         },
                         "$": ""
                     }
