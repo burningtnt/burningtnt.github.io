@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+const DEBUG = false;
 var StringFormat = function (instance, args) {
     let result = '', formatI = 0;
     for (let i = 0; i < instance.length; i++) {
@@ -37,15 +38,23 @@ var StringFormat = function (instance, args) {
     }
     return result;
 };
-var RequireNotEmpty = function (instance) {
-    if (instance == undefined) {
-        throw new BytecodeRunnerFatalErrorSignal("RequireNotEmpty", "Instance is undefined.");
-    }
-    if (instance == null) {
-        throw new BytecodeRunnerFatalErrorSignal("RequireNotEmpty", "Instance is null.");
-    }
-    return instance;
-};
+var RequireNotEmpty;
+if (DEBUG) {
+    RequireNotEmpty = function (instance) {
+        if (instance == undefined) {
+            throw new BytecodeRunnerFatalErrorSignal("RequireNotEmpty", "Instance is undefined.");
+        }
+        if (instance == null) {
+            throw new BytecodeRunnerFatalErrorSignal("RequireNotEmpty", "Instance is null.");
+        }
+        return instance;
+    };
+}
+else {
+    RequireNotEmpty = function (instance) {
+        return instance;
+    };
+}
 const GlobalThis = self;
 var PyObjectType;
 var WorkerMessageChannel = {
@@ -75,7 +84,8 @@ var WorkerMessageChannel = {
                 "Flush": "W2M:Console.Flush"
             },
             "GUI": {
-                "SetTitle": "W2M:GUI.SetTitle"
+                "SetTitle": "W2M:GUI.SetTitle",
+                "RenderBitMap": "W2M:GUI.RenderBitMap"
             }
         },
         "STATUS": {
@@ -88,7 +98,7 @@ var WorkerMessageChannel = {
         "pen": undefined,
         "messageCache": []
     },
-    "run": (action) => {
+    "run": (action, screenSize) => {
         GlobalThis.onmessage = function (ev) {
             if (ev.data.messageType !== WorkerMessageChannel.MessageType.M2W.LifeCycle.InitMessageChannel) {
                 return;
@@ -97,8 +107,13 @@ var WorkerMessageChannel = {
                 return;
             }
             let messageBody = ev.data.messageBody;
-            WorkerMessageChannel.internal.canvas = messageBody.canvas;
-            WorkerMessageChannel.internal.pen = RequireNotEmpty(messageBody.canvas.getContext("2d"));
+            if (messageBody.canvas == null) {
+                WorkerMessageChannel.internal.canvas = new OffscreenCanvas(screenSize[0], screenSize[1]);
+            }
+            else {
+                WorkerMessageChannel.internal.canvas = messageBody.canvas;
+            }
+            WorkerMessageChannel.internal.pen = RequireNotEmpty(WorkerMessageChannel.internal.canvas.getContext("2d"));
             GlobalThis.onmessage = null;
             if (messageBody.sharedBuffer.byteLength != 1027) {
                 return;
@@ -145,7 +160,7 @@ var WorkerMessageChannel = {
         };
         WorkerMessageChannel.postMessage({
             "messageType": WorkerMessageChannel.MessageType.W2M.LifeCycle.RequestInitMessageChannel,
-            "messageBody": null
+            "messageBody": screenSize
         });
     },
     "postMessage": (message) => {
@@ -374,7 +389,7 @@ class PyObjectInt extends PyObjectBase {
             for (let i = 0; i < this.value; i++) {
                 newString = newString + PyObject0.value;
             }
-            PythonRuntime.storage.varStack.push(new PyObjectString(newString));
+            PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString(newString));
         }
         else {
             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('python', 'int', PyObjectMethods.py_binary_multiply)));
@@ -505,7 +520,7 @@ class PyObjectInt extends PyObjectBase {
         }
     }
     py_str() {
-        PythonRuntime.storage.varStack.push(new PyObjectString(this.value.toString()));
+        PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString(this.value.toString()));
     }
     py_bool() {
         if (this.value === 0) {
@@ -516,7 +531,7 @@ class PyObjectInt extends PyObjectBase {
         }
     }
     py_repr() {
-        PythonRuntime.storage.varStack.push(new PyObjectString(this.value.toString()));
+        PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString(this.value.toString()));
     }
 }
 class PyObjectString extends PyObjectBase {
@@ -527,7 +542,7 @@ class PyObjectString extends PyObjectBase {
     }
     py_binary_add(PyObject0) {
         if (PyObject0.type === PyObjectType.String) {
-            PythonRuntime.storage.varStack.push(new PyObjectString(this.value + PyObject0.value));
+            PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString(this.value + PyObject0.value));
         }
         else {
             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('python', 'string', PyObjectMethods.py_binary_add)));
@@ -539,7 +554,7 @@ class PyObjectString extends PyObjectBase {
             for (let i = 0; i < PyObject0.value; i++) {
                 newString = newString + this.value;
             }
-            PythonRuntime.storage.varStack.push(new PyObjectString(newString));
+            PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString(newString));
         }
         else {
             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('python', 'string', PyObjectMethods.py_binary_multiply)));
@@ -552,7 +567,7 @@ class PyObjectString extends PyObjectBase {
         PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectBool(true));
     }
     py_repr() {
-        PythonRuntime.storage.varStack.push(new PyObjectString('\'' + this.value + '\''));
+        PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString('\'' + this.value + '\''));
     }
 }
 class PyObjectNone extends PyObjectBase {
@@ -561,13 +576,13 @@ class PyObjectNone extends PyObjectBase {
         this.type = PyObjectType.None;
     }
     py_str() {
-        PythonRuntime.storage.varStack.push(new PyObjectString('None'));
+        PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString('None'));
     }
     py_bool() {
         PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectBool(false));
     }
     py_repr() {
-        PythonRuntime.storage.varStack.push(new PyObjectString('None'));
+        PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString('None'));
     }
 }
 class PyObjectBool extends PyObjectBase {
@@ -602,10 +617,10 @@ class PyObjectBool extends PyObjectBase {
     }
     py_str() {
         if (this.value === true) {
-            PythonRuntime.storage.varStack.push(new PyObjectString('True'));
+            PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString('True'));
         }
         else {
-            PythonRuntime.storage.varStack.push(new PyObjectString('False'));
+            PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString('False'));
         }
     }
     py_bool() {
@@ -613,10 +628,10 @@ class PyObjectBool extends PyObjectBase {
     }
     py_repr() {
         if (this.value === true) {
-            PythonRuntime.storage.varStack.push(new PyObjectString('True'));
+            PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString('True'));
         }
         else {
-            PythonRuntime.storage.varStack.push(new PyObjectString('False'));
+            PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString('False'));
         }
     }
 }
@@ -718,7 +733,7 @@ class PyObjectGlobal extends PyObjectBase {
         }
     }
     py_repr() {
-        PythonRuntime.storage.varStack.push(new PyObjectString(StringFormat('<built-in function {}>', [this.value.toString()])));
+        PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString(StringFormat('<built-in function {}>', [this.value.toString()])));
     }
     py_attr_get(value) {
         for (let i = 0, keyList = Object.keys(this.attr); i < keyList.length; i++) {
@@ -1081,7 +1096,7 @@ class PyObjectTypeError extends PyObjectErrorBase {
         this.type = PyObjectType.TypeError;
     }
     py_repr() {
-        PythonRuntime.storage.varStack.push(new PyObjectString('<class \'TypeError\'>'));
+        PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString('<class \'TypeError\'>'));
     }
 }
 class PyObjectStopIteration extends PyObjectErrorBase {
@@ -1436,7 +1451,7 @@ PythonBuiltin = {
                         'py_function_call': {
                             'argNum': [0],
                             'method': function () {
-                                PythonRuntime.storage.varStack.push(new PyObjectString('Web.PC:Unknown'));
+                                PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString('Web.PC:Unknown'));
                             }
                         },
                         "$": ""
@@ -1448,6 +1463,90 @@ PythonBuiltin = {
                             'argNum': [0],
                             'method': function () {
                                 debugger;
+                                PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
+                            }
+                        },
+                        "$": ""
+                    }
+                },
+                "$": ""
+            },
+            "render": {
+                "name": "webpygame:render",
+                "attr": {
+                    "renderText": {
+                        "name": "webpygame:render.renderText",
+                        "attr": {},
+                        "py_function_call": {
+                            "argNum": [5],
+                            "method": function () {
+                                let buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                if (buffer.type != PyObjectType.Int) {
+                                    PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                }
+                                let size = buffer;
+                                buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                if (buffer.type != PyObjectType.Tuple) {
+                                    PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                }
+                                let color = buffer;
+                                if (color.value.length != 3) {
+                                    PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                }
+                                for (let i = 0; i < 3; i++) {
+                                    if (color.value[i].type != PyObjectType.Int) {
+                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                    }
+                                    if (color.value[i].value % 1 !== 0) {
+                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                    }
+                                }
+                                buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                if (buffer.type != PyObjectType.Tuple) {
+                                    PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                }
+                                let pos = buffer;
+                                if (pos.value.length != 2) {
+                                    PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                }
+                                for (let i = 0; i < 2; i++) {
+                                    if (pos.value[i].type != PyObjectType.Int) {
+                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                    }
+                                    if (pos.value[i].value % 1 !== 0) {
+                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                    }
+                                }
+                                buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                if (buffer.type != PyObjectType.Global) {
+                                    PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                    return;
+                                }
+                                let surface = buffer;
+                                let ctx;
+                                if (surface.value.name === "pygame:display.screenSurface@instance") {
+                                    ctx = RequireNotEmpty(WorkerMessageChannel.internal.pen);
+                                }
+                                else if (surface.value.name === "pygame:Surface@instance") {
+                                    ctx = surface.storage;
+                                }
+                                else {
+                                    PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                    return;
+                                }
+                                buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                if (buffer.type != PyObjectType.String) {
+                                    PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'webpygame:render.renderText', PyObjectMethods.py_function_call)));
+                                }
+                                let text = buffer;
+                                ctx.font = size.toString() + "px";
+                                ctx.fillStyle = StringFormat("rgb({},{},{})", [
+                                    color.value[0].value.toString(),
+                                    color.value[1].value.toString(),
+                                    color.value[2].value.toString()
+                                ]);
+                                ctx.textBaseline = 'top';
+                                ctx.fillText(text.value, pos.value[0].value, pos.value[1].value);
                                 PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
                             }
                         },
@@ -2024,27 +2123,22 @@ PythonBuiltin = {
                         "py_function_call": {
                             "argNum": [0],
                             "method": (function () {
-                                let firstTime = false;
-                                return () => {
-                                    let commitFunction = RequireNotEmpty(WorkerMessageChannel.internal.pen).commit;
-                                    if (commitFunction == undefined) {
-                                        if (firstTime) {
-                                            WorkerMessageChannel.postMessage({
-                                                "messageType": WorkerMessageChannel.MessageType.W2M.Console.Stdout,
-                                                "messageBody": "WebPygame Renderer can't commit the OffscreenCanvas.\n"
-                                            });
-                                            WorkerMessageChannel.postMessage({
-                                                "messageType": WorkerMessageChannel.MessageType.W2M.Console.Flush,
-                                                "messageBody": null
-                                            });
-                                            firstTime = true;
-                                        }
-                                    }
-                                    else {
+                                if (OffscreenCanvasRenderingContext2D.prototype.commit == undefined) {
+                                    return () => {
+                                        let imageBitMap = RequireNotEmpty(WorkerMessageChannel.internal.canvas).transferToImageBitmap();
+                                        WorkerMessageChannel.postMessage({
+                                            "messageType": WorkerMessageChannel.MessageType.W2M.GUI.RenderBitMap,
+                                            "messageBody": imageBitMap
+                                        });
+                                        PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
+                                    };
+                                }
+                                else {
+                                    return () => {
                                         RequireNotEmpty(WorkerMessageChannel.internal.pen).commit();
-                                    }
-                                    PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
-                                };
+                                        PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
+                                    };
+                                }
                             })()
                         },
                         "$": ""
@@ -2331,7 +2425,7 @@ PythonBuiltin = {
                         "py_function_call": {
                             "argNum": [0],
                             "method": function () {
-                                PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectInt(new Date().getTime()));
+                                PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectInt(Date.now()));
                             }
                         },
                         "$": ""
@@ -2342,7 +2436,7 @@ PythonBuiltin = {
                         "py_function_call": {
                             "argNum": [0],
                             "method": function () {
-                                let lastTickTime = new Date();
+                                let lastTickTime = Date.now();
                                 PythonRuntime.storage.varStack.push(new PyObjectGlobal({
                                     "name": "pygame.time.Clock@instance",
                                     "attr": {
@@ -2356,11 +2450,11 @@ PythonBuiltin = {
                                                     if (PyObject0.type != PyObjectType.Int) {
                                                         PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'time.Clock@instance.tick', PyObjectMethods.py_function_call)));
                                                     }
-                                                    let currentTime = new Date();
-                                                    if (currentTime.getTime() - lastTickTime.getTime() > 1000 / PyObject0.value) {
+                                                    let currentTime = Date.now();
+                                                    if (currentTime - lastTickTime > 1000 / PyObject0.value) {
                                                         WorkerMessageChannel.postMessage({
                                                             "messageType": WorkerMessageChannel.MessageType.W2M.Console.Stdout,
-                                                            "messageBody": StringFormat("WebPygame renderer cann't keep up! The current frame cost {}ms to render ({}FPS), which is longer than the maximum render time {}ms.\n", [Math.floor(currentTime.getTime() - lastTickTime.getTime()).toString(), (Math.floor(10000 / (currentTime.getTime() - lastTickTime.getTime())) / 10).toString(), Math.floor(1000 / PyObject0.value).toString()])
+                                                            "messageBody": StringFormat("WebPygame renderer cann't keep up! The current frame cost {}ms to render ({}FPS), which is longer than the maximum render time {}ms.\n", [Math.floor(currentTime - lastTickTime).toString(), (Math.floor(10000 / (currentTime - lastTickTime)) / 10).toString(), Math.floor(1000 / PyObject0.value).toString()])
                                                         });
                                                         WorkerMessageChannel.postMessage({
                                                             "messageType": WorkerMessageChannel.MessageType.W2M.Console.Flush,
@@ -2369,9 +2463,9 @@ PythonBuiltin = {
                                                     }
                                                     else {
                                                         WorkerMessageChannel.pumpMessages();
-                                                        currentTime = new Date();
-                                                        while (currentTime.getTime() - lastTickTime.getTime() < 1000 / PyObject0.value) {
-                                                            currentTime = new Date();
+                                                        currentTime = Date.now();
+                                                        while (currentTime - lastTickTime < 1000 / PyObject0.value) {
+                                                            currentTime = Date.now();
                                                         }
                                                     }
                                                     lastTickTime = currentTime;
@@ -3260,7 +3354,7 @@ WorkerMessageChannel.run((exitCallback) => {
                         if (typeof constValue !== "string") {
                             throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.String.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
                         }
-                        PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex] = new PyObjectString(constValue);
+                        PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectString(constValue);
                         break;
                     }
                     case 'Bool': {
@@ -3306,7 +3400,7 @@ WorkerMessageChannel.run((exitCallback) => {
                 }
             }
         }
-        let startTime = new Date();
+        let startTime = Date.now();
         let success = false;
         try {
             PythonRuntime.runCodeObject(0, 0, 0);
@@ -3314,7 +3408,7 @@ WorkerMessageChannel.run((exitCallback) => {
         }
         catch (error) {
             if (error instanceof BytecodeRunnerPyErrorSignal) {
-                let time = new Date().getTime() - startTime.getTime();
+                let time = Date.now() - startTime;
                 let pyError = RequireNotEmpty(PythonRuntime.storage.pyError.value).value;
                 let pyErrorType;
                 let pyErrorProto = RequireNotEmpty(PythonRuntime.storage.pyError.value).__proto__;
@@ -3359,7 +3453,7 @@ WorkerMessageChannel.run((exitCallback) => {
             }
         }
         if (success == true) {
-            let time = new Date().getTime() - startTime.getTime();
+            let time = Date.now() - startTime;
             let returnValue = PythonRuntime.storage.varStack.pop();
             if (returnValue == null || returnValue == undefined || returnValue.type == PyObjectType.None) {
                 WorkerMessageChannel.postMessage({
@@ -3384,4 +3478,4 @@ WorkerMessageChannel.run((exitCallback) => {
             }
         }
     });
-});
+}, [800, 600]);

@@ -64,8 +64,8 @@ var MessageType = {
             "Flush": "W2M:Console.Flush"
         },
         "GUI": {
-            "Resize": "W2M:GUI.Resize",
-            "SetTitle": "W2M:GUI.SetTitle"
+            "SetTitle": "W2M:GUI.SetTitle",
+            "RenderBitMap": "W2M:GUI.RenderBitMap"
         }
     },
     "STATUS": {
@@ -139,6 +139,7 @@ class ConsoleRenderer {
 }
 class App {
     constructor(consoleCanvas, uiCanvas, workerProvider) {
+        this.uiCanvasBitMapRenderer = null;
         this.messageCache = new MessageCacheQueue(64);
         this.launched = false;
         this.consoleCanvas = consoleCanvas;
@@ -167,10 +168,10 @@ class App {
                 this.consoleRenderer.render();
                 break;
             }
-            case MessageType.W2M.GUI.Resize: {
-                this.uiCanvas.width = message.messageBody[0];
-                this.uiCanvas.height = message.messageBody[1];
-                break;
+            case MessageType.W2M.GUI.RenderBitMap: {
+                if (this.uiCanvasBitMapRenderer != null) {
+                    this.uiCanvasBitMapRenderer.transferFromImageBitmap(message.messageBody);
+                }
             }
         }
     }
@@ -198,11 +199,9 @@ class App {
                 onError();
                 return;
             }
+            this.uiCanvas.width = ev.data.messageBody[0];
+            this.uiCanvas.height = ev.data.messageBody[1];
             Atomics.store(uint8Array, 0, MessageType.STATUS.MAIN_ACCESS);
-            if (this.uiCanvas.transferControlToOffscreen == undefined) {
-                onError();
-                return;
-            }
             worker.onmessage = (ev) => {
                 if (ev.data.messageType !== MessageType.W2M.LifeCycle.ConnectionOK) {
                     onError();
@@ -333,14 +332,26 @@ class App {
                     });
                 });
             };
-            let offscreenCanvas = this.uiCanvas.transferControlToOffscreen();
-            worker.postMessage({
-                "messageType": MessageType.M2W.LifeCycle.InitMessageChannel,
-                "messageBody": {
-                    "sharedBuffer": sharedBuffer,
-                    "canvas": offscreenCanvas
-                }
-            }, [offscreenCanvas]);
+            if (this.uiCanvas.transferControlToOffscreen == undefined || OffscreenCanvasRenderingContext2D.prototype.commit == undefined) {
+                this.uiCanvasBitMapRenderer = this.uiCanvas.getContext("bitmaprenderer");
+                worker.postMessage({
+                    "messageType": MessageType.M2W.LifeCycle.InitMessageChannel,
+                    "messageBody": {
+                        "sharedBuffer": sharedBuffer,
+                        "canvas": null
+                    }
+                });
+            }
+            else {
+                let offscreenCanvas = this.uiCanvas.transferControlToOffscreen();
+                worker.postMessage({
+                    "messageType": MessageType.M2W.LifeCycle.InitMessageChannel,
+                    "messageBody": {
+                        "sharedBuffer": sharedBuffer,
+                        "canvas": offscreenCanvas
+                    }
+                }, [offscreenCanvas]);
+            }
         };
     }
     postMessage(message) {
