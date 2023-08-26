@@ -15,998 +15,1046 @@
              28 IMPORT_NAME              3 (webpygame)
              30 STORE_NAME               3 (webpygame)
 
-  3          32 LOAD_BUILD_CLASS
-             34 LOAD_CONST               2 (<code object CLS_box at 0x0338D3E8, file "<dis>", line 3>)
-             36 LOAD_CONST               3 ('CLS_box')
-             38 MAKE_FUNCTION            0
-             40 LOAD_CONST               3 ('CLS_box')
-             42 LOAD_NAME                4 (object)
-             44 CALL_FUNCTION            3
-             46 STORE_NAME               5 (CLS_box)
-
- 14          48 LOAD_CONST               4 (<code object create_box at 0x0338D440, file "<dis>", line 14>)
-             50 LOAD_CONST               5 ('create_box')
-             52 MAKE_FUNCTION            0
-             54 STORE_NAME               6 (create_box)
-
- 31          56 LOAD_NAME                0 (pygame)
-             58 LOAD_METHOD              7 (init)
-             60 CALL_METHOD              0
-             62 POP_TOP
-
- 32          64 LOAD_CONST               6 (800)
-             66 STORE_NAME               8 (SCREEN_W)
-
- 33          68 LOAD_CONST               7 (600)
-             70 STORE_NAME               9 (SCREEN_H)
-
- 34          72 LOAD_NAME                8 (SCREEN_W)
-             74 LOAD_NAME                9 (SCREEN_H)
-             76 BUILD_TUPLE              2
-             78 STORE_NAME              10 (SCREEN_SIZE)
-
- 35          80 LOAD_NAME                0 (pygame)
-             82 LOAD_ATTR               11 (display)
-             84 LOAD_METHOD             12 (set_mode)
-             86 LOAD_NAME               10 (SCREEN_SIZE)
-             88 CALL_METHOD              1
-             90 STORE_NAME              13 (screen)
-
- 36          92 LOAD_NAME                0 (pygame)
-             94 LOAD_ATTR               11 (display)
-             96 LOAD_METHOD             14 (set_caption)
-             98 LOAD_CONST               8 ('Ì«¿Õ´óÌÓÍö')
-            100 CALL_METHOD              1
-            102 POP_TOP
-
- 37         104 LOAD_NAME                0 (pygame)
-            106 LOAD_ATTR               15 (time)
-            108 LOAD_METHOD             16 (Clock)
-            110 CALL_METHOD              0
-            112 STORE_NAME              17 (clock)
-
- 38         114 LOAD_NAME                0 (pygame)
-            116 LOAD_ATTR               18 (font)
-            118 LOAD_METHOD             19 (Font)
-            120 LOAD_CONST               1 (None)
-            122 LOAD_CONST               9 (80)
-            124 CALL_METHOD              2
-            126 STORE_NAME              18 (font)
-
- 41         128 LOAD_CONST              10 (False)
-            130 BUILD_LIST               1
-            132 LOAD_CONST              11 (8)
-            134 BINARY_MULTIPLY
-            136 STORE_NAME              20 (cheat)
-
- 42         138 LOAD_NAME               20 (cheat)
-            140 STORE_NAME              21 (cheatStart)
-
- 43         142 LOAD_CONST              12 (2)
-            144 STORE_NAME              22 (screenMove)
-
- 44         146 LOAD_CONST              13 (300)
-            148 LOAD_CONST              14 (200)
-            150 LOAD_CONST              14 (200)
-            152 LOAD_CONST              14 (200)
-            154 BUILD_LIST               4
-            156 STORE_NAME              23 (homeBox)
-
- 45         158 LOAD_NAME                5 (CLS_box)
-            160 LOAD_CONST              15 (380)
-            162 LOAD_CONST              16 (280)
-            164 LOAD_CONST              17 (10)
-            166 LOAD_CONST              17 (10)
-            168 BUILD_LIST               4
-            170 LOAD_CONST               0 (0)
-            172 LOAD_CONST               0 (0)
-            174 BUILD_LIST               2
-            176 LOAD_CONST              18 ((255, 255, 255))
-            178 CALL_FUNCTION            3
-            180 STORE_NAME              24 (myBox)
-
- 46         182 LOAD_CONST              19 (100)
-            184 STORE_NAME              25 (boxNumber)
-
- 47         186 BUILD_LIST               0
-            188 BUILD_LIST               0
-            190 ROT_TWO
-            192 STORE_NAME              26 (boxList)
-            194 STORE_NAME              27 (rectList)
-
- 48         196 SETUP_LOOP              46 (to 244)
-            198 LOAD_NAME               28 (range)
-            200 LOAD_NAME               25 (boxNumber)
-            202 CALL_FUNCTION            1
-            204 GET_ITER
-        >>  206 FOR_ITER                34 (to 242)
-            208 STORE_NAME              29 (i)
-
- 49         210 LOAD_NAME                6 (create_box)
-            212 LOAD_NAME               27 (rectList)
-            214 CALL_FUNCTION            1
-            216 STORE_NAME              30 (b)
-
- 50         218 LOAD_NAME               26 (boxList)
-            220 LOAD_METHOD             31 (append)
-            222 LOAD_NAME               30 (b)
-            224 CALL_METHOD              1
-            226 POP_TOP
-
- 51         228 LOAD_NAME               27 (rectList)
-            230 LOAD_METHOD             31 (append)
-            232 LOAD_NAME               30 (b)
-            234 LOAD_ATTR               32 (rect)
-            236 CALL_METHOD              1
-            238 POP_TOP
-            240 JUMP_ABSOLUTE          206
-        >>  242 POP_BLOCK
-
- 52     >>  244 LOAD_NAME                0 (pygame)
-            246 LOAD_ATTR               15 (time)
-            248 LOAD_METHOD             33 (get_ticks)
-            250 CALL_METHOD              0
-            252 STORE_NAME              34 (timeStart)
-
- 55         254 EXTENDED_ARG             4
-            256 SETUP_LOOP            1174 (to 1432)
-
- 56     >>  258 EXTENDED_ARG             1
-            260 SETUP_LOOP             332 (to 594)
-            262 LOAD_NAME                0 (pygame)
-            264 LOAD_ATTR               35 (event)
-            266 LOAD_METHOD             36 (get)
-            268 CALL_METHOD              0
-            270 GET_ITER
-        >>  272 EXTENDED_ARG             1
-            274 FOR_ITER               316 (to 592)
-            276 STORE_NAME              35 (event)
-
- 57         278 LOAD_NAME               35 (event)
-            280 LOAD_ATTR               37 (type)
-            282 LOAD_NAME                0 (pygame)
-            284 LOAD_ATTR               38 (QUIT)
-            286 COMPARE_OP               2 (==)
-            288 EXTENDED_ARG             1
-            290 POP_JUMP_IF_FALSE      308
-
- 58         292 LOAD_NAME                0 (pygame)
-            294 LOAD_METHOD             39 (quit)
-            296 CALL_METHOD              0
-            298 POP_TOP
-
- 59         300 LOAD_NAME                1 (sys)
-            302 LOAD_METHOD             40 (exit)
-            304 CALL_METHOD              0
-            306 POP_TOP
-
- 60     >>  308 LOAD_NAME               35 (event)
-            310 LOAD_ATTR               37 (type)
-            312 LOAD_NAME                0 (pygame)
-            314 LOAD_ATTR               41 (KEYDOWN)
-            316 COMPARE_OP               2 (==)
-            318 EXTENDED_ARG             1
-            320 POP_JUMP_IF_FALSE      428
-
- 61         322 LOAD_NAME               35 (event)
-            324 LOAD_ATTR               42 (key)
-            326 LOAD_NAME                0 (pygame)
-            328 LOAD_ATTR               43 (K_LEFT)
-            330 COMPARE_OP               2 (==)
-            332 EXTENDED_ARG             1
-            334 POP_JUMP_IF_FALSE      350
-
- 62         336 LOAD_CONST               0 (0)
-            338 LOAD_NAME               22 (screenMove)
-            340 BINARY_SUBTRACT
-            342 LOAD_NAME               24 (myBox)
-            344 LOAD_ATTR               44 (speed)
-            346 LOAD_CONST               0 (0)
-            348 STORE_SUBSCR
-
- 63     >>  350 LOAD_NAME               35 (event)
-            352 LOAD_ATTR               42 (key)
-            354 LOAD_NAME                0 (pygame)
-            356 LOAD_ATTR               45 (K_RIGHT)
-            358 COMPARE_OP               2 (==)
-            360 EXTENDED_ARG             1
-            362 POP_JUMP_IF_FALSE      374
-
- 64         364 LOAD_NAME               22 (screenMove)
-            366 LOAD_NAME               24 (myBox)
-            368 LOAD_ATTR               44 (speed)
-            370 LOAD_CONST               0 (0)
-            372 STORE_SUBSCR
-
- 65     >>  374 LOAD_NAME               35 (event)
-            376 LOAD_ATTR               42 (key)
-            378 LOAD_NAME                0 (pygame)
-            380 LOAD_ATTR               46 (K_UP)
-            382 COMPARE_OP               2 (==)
-            384 EXTENDED_ARG             1
-            386 POP_JUMP_IF_FALSE      402
-
- 66         388 LOAD_CONST               0 (0)
-            390 LOAD_NAME               22 (screenMove)
-            392 BINARY_SUBTRACT
-            394 LOAD_NAME               24 (myBox)
-            396 LOAD_ATTR               44 (speed)
-            398 LOAD_CONST              20 (1)
-            400 STORE_SUBSCR
-
- 67     >>  402 LOAD_NAME               35 (event)
-            404 LOAD_ATTR               42 (key)
-            406 LOAD_NAME                0 (pygame)
-            408 LOAD_ATTR               47 (K_DOWN)
-            410 COMPARE_OP               2 (==)
-            412 EXTENDED_ARG             2
-            414 POP_JUMP_IF_FALSE      564
-
- 68         416 LOAD_NAME               22 (screenMove)
-            418 LOAD_NAME               24 (myBox)
-            420 LOAD_ATTR               44 (speed)
-            422 LOAD_CONST              20 (1)
-            424 STORE_SUBSCR
-            426 JUMP_FORWARD           136 (to 564)
-
- 69     >>  428 LOAD_NAME               35 (event)
-            430 LOAD_ATTR               37 (type)
-            432 LOAD_NAME                0 (pygame)
-            434 LOAD_ATTR               48 (MOUSEBUTTONDOWN)
-            436 COMPARE_OP               2 (==)
-            438 EXTENDED_ARG             2
-            440 POP_JUMP_IF_FALSE      516
-
- 70         442 LOAD_NAME               49 (int)
-            444 LOAD_NAME               35 (event)
-            446 LOAD_ATTR               50 (pos)
-            448 LOAD_CONST               0 (0)
-            450 BINARY_SUBSCR
-            452 LOAD_NAME                8 (SCREEN_W)
-            454 BINARY_TRUE_DIVIDE
-            456 LOAD_CONST              21 (3)
-            458 BINARY_MULTIPLY
-            460 CALL_FUNCTION            1
-            462 LOAD_CONST              20 (1)
-            464 BINARY_SUBTRACT
-            466 LOAD_NAME               22 (screenMove)
-            468 BINARY_MULTIPLY
-            470 LOAD_NAME               24 (myBox)
-            472 LOAD_ATTR               44 (speed)
-            474 LOAD_CONST               0 (0)
-            476 STORE_SUBSCR
-
- 71         478 LOAD_NAME               49 (int)
-            480 LOAD_NAME               35 (event)
-            482 LOAD_ATTR               50 (pos)
-            484 LOAD_CONST              20 (1)
-            486 BINARY_SUBSCR
-            488 LOAD_NAME                9 (SCREEN_H)
-            490 BINARY_TRUE_DIVIDE
-            492 LOAD_CONST              21 (3)
-            494 BINARY_MULTIPLY
-            496 CALL_FUNCTION            1
-            498 LOAD_CONST              20 (1)
-            500 BINARY_SUBTRACT
-            502 LOAD_NAME               22 (screenMove)
-            504 BINARY_MULTIPLY
-            506 LOAD_NAME               24 (myBox)
-            508 LOAD_ATTR               44 (speed)
-            510 LOAD_CONST              20 (1)
-            512 STORE_SUBSCR
-            514 JUMP_FORWARD            48 (to 564)
-
- 72     >>  516 LOAD_NAME               35 (event)
-            518 LOAD_ATTR               37 (type)
-            520 LOAD_NAME                0 (pygame)
-            522 LOAD_ATTR               51 (KEYUP)
-            524 COMPARE_OP               2 (==)
-            526 EXTENDED_ARG             2
-            528 POP_JUMP_IF_TRUE       544
-            530 LOAD_NAME               35 (event)
-            532 LOAD_ATTR               37 (type)
-            534 LOAD_NAME                0 (pygame)
-            536 LOAD_ATTR               52 (MOUSEBUTTONUP)
-            538 COMPARE_OP               2 (==)
-            540 EXTENDED_ARG             2
-            542 POP_JUMP_IF_FALSE      564
-
- 73     >>  544 LOAD_CONST               0 (0)
-            546 LOAD_NAME               24 (myBox)
-            548 LOAD_ATTR               44 (speed)
-            550 LOAD_CONST               0 (0)
-            552 STORE_SUBSCR
-
- 74         554 LOAD_CONST               0 (0)
-            556 LOAD_NAME               24 (myBox)
-            558 LOAD_ATTR               44 (speed)
-            560 LOAD_CONST              20 (1)
-            562 STORE_SUBSCR
-
- 75     >>  564 LOAD_NAME               20 (cheat)
-            566 LOAD_CONST              20 (1)
-            568 BINARY_SUBSCR
-            570 LOAD_CONST              22 (True)
-            572 COMPARE_OP               2 (==)
-            574 EXTENDED_ARG             2
-            576 POP_JUMP_IF_FALSE      584
-
- 76         578 LOAD_CONST              17 (10)
-            580 STORE_NAME              22 (screenMove)
-            582 JUMP_FORWARD             4 (to 588)
-
- 78     >>  584 LOAD_CONST              12 (2)
-            586 STORE_NAME              22 (screenMove)
-        >>  588 EXTENDED_ARG             1
-            590 JUMP_ABSOLUTE          272
-        >>  592 POP_BLOCK
-
- 79     >>  594 LOAD_NAME               13 (screen)
-            596 LOAD_METHOD             53 (fill)
-            598 LOAD_CONST              23 ((0, 0, 0))
-            600 CALL_METHOD              1
-            602 POP_TOP
-
- 80         604 LOAD_NAME               20 (cheat)
-            606 LOAD_CONST              24 (5)
-            608 BINARY_SUBSCR
-            610 LOAD_CONST              10 (False)
-            612 COMPARE_OP               2 (==)
-            614 EXTENDED_ARG             2
-            616 POP_JUMP_IF_FALSE      626
-
- 81         618 LOAD_NAME               24 (myBox)
-            620 LOAD_METHOD             54 (move)
-            622 CALL_METHOD              0
-            624 POP_TOP
-
- 82     >>  626 LOAD_NAME               20 (cheat)
-            628 LOAD_CONST              25 (6)
-            630 BINARY_SUBSCR
-            632 LOAD_CONST              10 (False)
-            634 COMPARE_OP               2 (==)
-            636 EXTENDED_ARG             2
-            638 POP_JUMP_IF_FALSE      650
-
- 83         640 LOAD_NAME               24 (myBox)
-            642 LOAD_METHOD             55 (draw)
-            644 LOAD_NAME               13 (screen)
-            646 CALL_METHOD              1
-            648 POP_TOP
-
- 85     >>  650 EXTENDED_ARG             2
-            652 SETUP_LOOP             738 (to 1392)
-            654 LOAD_NAME               26 (boxList)
-            656 GET_ITER
-        >>  658 EXTENDED_ARG             2
-            660 FOR_ITER               728 (to 1390)
-            662 STORE_NAME              30 (b)
-
- 86         664 LOAD_NAME               30 (b)
-            666 LOAD_ATTR               32 (rect)
-            668 LOAD_ATTR               56 (x)
-            670 LOAD_NAME                8 (SCREEN_W)
-            672 LOAD_NAME               30 (b)
-            674 LOAD_ATTR               32 (rect)
-            676 LOAD_ATTR               57 (w)
-            678 BINARY_SUBTRACT
-            680 COMPARE_OP               4 (>)
-            682 EXTENDED_ARG             2
-            684 POP_JUMP_IF_TRUE       700
-            686 LOAD_NAME               30 (b)
-            688 LOAD_ATTR               32 (rect)
-            690 LOAD_ATTR               56 (x)
-            692 LOAD_CONST               0 (0)
-            694 COMPARE_OP               2 (==)
-            696 EXTENDED_ARG             2
-            698 POP_JUMP_IF_FALSE      720
-
- 87     >>  700 LOAD_CONST               0 (0)
-            702 LOAD_NAME               30 (b)
-            704 LOAD_ATTR               44 (speed)
-            706 LOAD_CONST               0 (0)
-            708 BINARY_SUBSCR
-            710 BINARY_SUBTRACT
-            712 LOAD_NAME               30 (b)
-            714 LOAD_ATTR               44 (speed)
-            716 LOAD_CONST               0 (0)
-            718 STORE_SUBSCR
-
- 88     >>  720 LOAD_NAME               30 (b)
-            722 LOAD_ATTR               32 (rect)
-            724 LOAD_ATTR               58 (y)
-            726 LOAD_NAME                9 (SCREEN_H)
-            728 LOAD_NAME               30 (b)
-            730 LOAD_ATTR               32 (rect)
-            732 LOAD_ATTR               59 (h)
-            734 BINARY_SUBTRACT
-            736 COMPARE_OP               4 (>)
-            738 EXTENDED_ARG             2
-            740 POP_JUMP_IF_TRUE       756
-            742 LOAD_NAME               30 (b)
-            744 LOAD_ATTR               32 (rect)
-            746 LOAD_ATTR               58 (y)
-            748 LOAD_CONST               0 (0)
-            750 COMPARE_OP               2 (==)
-            752 EXTENDED_ARG             3
-            754 POP_JUMP_IF_FALSE      776
-
- 89     >>  756 LOAD_CONST               0 (0)
-            758 LOAD_NAME               30 (b)
-            760 LOAD_ATTR               44 (speed)
-            762 LOAD_CONST              20 (1)
-            764 BINARY_SUBSCR
-            766 BINARY_SUBTRACT
-            768 LOAD_NAME               30 (b)
-            770 LOAD_ATTR               44 (speed)
-            772 LOAD_CONST              20 (1)
-            774 STORE_SUBSCR
-
- 90     >>  776 LOAD_NAME               20 (cheat)
-            778 LOAD_CONST              21 (3)
-            780 BINARY_SUBSCR
-            782 LOAD_CONST              10 (False)
-            784 COMPARE_OP               2 (==)
-            786 EXTENDED_ARG             4
-            788 POP_JUMP_IF_FALSE     1152
-
- 91         790 EXTENDED_ARG             1
-            792 SETUP_LOOP             358 (to 1152)
-            794 LOAD_NAME               26 (boxList)
-            796 GET_ITER
-        >>  798 EXTENDED_ARG             1
-            800 FOR_ITER               348 (to 1150)
-            802 STORE_NAME              60 (b0)
-
- 92         804 LOAD_NAME               30 (b)
-            806 LOAD_NAME               60 (b0)
-            808 COMPARE_OP               2 (==)
-            810 EXTENDED_ARG             3
-            812 POP_JUMP_IF_FALSE      818
-
- 93         814 EXTENDED_ARG             3
-            816 JUMP_ABSOLUTE          798
-
- 94     >>  818 LOAD_NAME               61 (abs)
-            820 LOAD_NAME               60 (b0)
-            822 LOAD_ATTR               32 (rect)
-            824 LOAD_ATTR               62 (bottom)
-            826 LOAD_NAME               30 (b)
-            828 LOAD_ATTR               32 (rect)
-            830 LOAD_ATTR               63 (top)
-            832 BINARY_SUBTRACT
-            834 CALL_FUNCTION            1
-            836 LOAD_CONST              20 (1)
-            838 COMPARE_OP               1 (<=)
-            840 EXTENDED_ARG             3
-            842 POP_JUMP_IF_FALSE      900
-
- 95         844 LOAD_NAME               30 (b)
-            846 LOAD_ATTR               32 (rect)
-            848 LOAD_ATTR               64 (right)
-            850 LOAD_NAME               60 (b0)
-            852 LOAD_ATTR               32 (rect)
-            854 LOAD_ATTR               65 (left)
-            856 COMPARE_OP               5 (>=)
-            858 EXTENDED_ARG             3
-            860 POP_JUMP_IF_FALSE      900
-
- 96         862 LOAD_NAME               60 (b0)
-            864 LOAD_ATTR               32 (rect)
-            866 LOAD_ATTR               64 (right)
-            868 LOAD_NAME               30 (b)
-            870 LOAD_ATTR               32 (rect)
-            872 LOAD_ATTR               65 (left)
-            874 COMPARE_OP               5 (>=)
-            876 EXTENDED_ARG             3
-            878 POP_JUMP_IF_FALSE      900
-
- 97         880 LOAD_CONST               0 (0)
-            882 LOAD_NAME               30 (b)
-            884 LOAD_ATTR               44 (speed)
-            886 LOAD_CONST              20 (1)
-            888 BINARY_SUBSCR
-            890 BINARY_SUBTRACT
-            892 LOAD_NAME               30 (b)
-            894 LOAD_ATTR               44 (speed)
-            896 LOAD_CONST              20 (1)
-            898 STORE_SUBSCR
-
- 98     >>  900 LOAD_NAME               61 (abs)
-            902 LOAD_NAME               60 (b0)
-            904 LOAD_ATTR               32 (rect)
-            906 LOAD_ATTR               63 (top)
-            908 LOAD_NAME               30 (b)
-            910 LOAD_ATTR               32 (rect)
-            912 LOAD_ATTR               62 (bottom)
-            914 BINARY_SUBTRACT
-            916 CALL_FUNCTION            1
-            918 LOAD_CONST              20 (1)
-            920 COMPARE_OP               1 (<=)
-            922 EXTENDED_ARG             3
-            924 POP_JUMP_IF_FALSE      982
-
- 99         926 LOAD_NAME               30 (b)
-            928 LOAD_ATTR               32 (rect)
-            930 LOAD_ATTR               64 (right)
-            932 LOAD_NAME               60 (b0)
-            934 LOAD_ATTR               32 (rect)
-            936 LOAD_ATTR               65 (left)
-            938 COMPARE_OP               5 (>=)
-            940 EXTENDED_ARG             3
-            942 POP_JUMP_IF_FALSE      982
-
-100         944 LOAD_NAME               60 (b0)
-            946 LOAD_ATTR               32 (rect)
-            948 LOAD_ATTR               64 (right)
-            950 LOAD_NAME               30 (b)
-            952 LOAD_ATTR               32 (rect)
-            954 LOAD_ATTR               65 (left)
-            956 COMPARE_OP               5 (>=)
-            958 EXTENDED_ARG             3
-            960 POP_JUMP_IF_FALSE      982
-
-101         962 LOAD_CONST               0 (0)
-            964 LOAD_NAME               30 (b)
-            966 LOAD_ATTR               44 (speed)
-            968 LOAD_CONST              20 (1)
-            970 BINARY_SUBSCR
-            972 BINARY_SUBTRACT
-            974 LOAD_NAME               30 (b)
-            976 LOAD_ATTR               44 (speed)
-            978 LOAD_CONST              20 (1)
-            980 STORE_SUBSCR
-
-102     >>  982 LOAD_NAME               61 (abs)
-            984 LOAD_NAME               60 (b0)
-            986 LOAD_ATTR               32 (rect)
-            988 LOAD_ATTR               64 (right)
-            990 LOAD_NAME               30 (b)
-            992 LOAD_ATTR               32 (rect)
-            994 LOAD_ATTR               65 (left)
-            996 BINARY_SUBTRACT
-            998 CALL_FUNCTION            1
-           1000 LOAD_CONST              20 (1)
-           1002 COMPARE_OP               1 (<=)
-           1004 EXTENDED_ARG             4
-           1006 POP_JUMP_IF_FALSE     1064
-
-103        1008 LOAD_NAME               30 (b)
-           1010 LOAD_ATTR               32 (rect)
-           1012 LOAD_ATTR               62 (bottom)
-           1014 LOAD_NAME               60 (b0)
-           1016 LOAD_ATTR               32 (rect)
-           1018 LOAD_ATTR               63 (top)
-           1020 COMPARE_OP               5 (>=)
-           1022 EXTENDED_ARG             4
-           1024 POP_JUMP_IF_FALSE     1064
-
-104        1026 LOAD_NAME               60 (b0)
-           1028 LOAD_ATTR               32 (rect)
-           1030 LOAD_ATTR               62 (bottom)
-           1032 LOAD_NAME               30 (b)
-           1034 LOAD_ATTR               32 (rect)
-           1036 LOAD_ATTR               63 (top)
-           1038 COMPARE_OP               5 (>=)
-           1040 EXTENDED_ARG             4
-           1042 POP_JUMP_IF_FALSE     1064
-
-105        1044 LOAD_CONST               0 (0)
-           1046 LOAD_NAME               30 (b)
-           1048 LOAD_ATTR               44 (speed)
-           1050 LOAD_CONST               0 (0)
-           1052 BINARY_SUBSCR
-           1054 BINARY_SUBTRACT
-           1056 LOAD_NAME               30 (b)
-           1058 LOAD_ATTR               44 (speed)
-           1060 LOAD_CONST               0 (0)
-           1062 STORE_SUBSCR
-
-106     >> 1064 LOAD_NAME               61 (abs)
-           1066 LOAD_NAME               60 (b0)
-           1068 LOAD_ATTR               32 (rect)
-           1070 LOAD_ATTR               65 (left)
-           1072 LOAD_NAME               30 (b)
-           1074 LOAD_ATTR               32 (rect)
-           1076 LOAD_ATTR               64 (right)
-           1078 BINARY_SUBTRACT
-           1080 CALL_FUNCTION            1
-           1082 LOAD_CONST              20 (1)
-           1084 COMPARE_OP               1 (<=)
-           1086 EXTENDED_ARG             3
-           1088 POP_JUMP_IF_FALSE      798
-
-107        1090 LOAD_NAME               30 (b)
-           1092 LOAD_ATTR               32 (rect)
-           1094 LOAD_ATTR               62 (bottom)
-           1096 LOAD_NAME               60 (b0)
-           1098 LOAD_ATTR               32 (rect)
-           1100 LOAD_ATTR               63 (top)
-           1102 COMPARE_OP               5 (>=)
-           1104 EXTENDED_ARG             3
-           1106 POP_JUMP_IF_FALSE      798
-
-108        1108 LOAD_NAME               60 (b0)
-           1110 LOAD_ATTR               32 (rect)
-           1112 LOAD_ATTR               62 (bottom)
-           1114 LOAD_NAME               30 (b)
-           1116 LOAD_ATTR               32 (rect)
-           1118 LOAD_ATTR               63 (top)
-           1120 COMPARE_OP               5 (>=)
-           1122 EXTENDED_ARG             3
-           1124 POP_JUMP_IF_FALSE      798
-
-109        1126 LOAD_CONST               0 (0)
-           1128 LOAD_NAME               30 (b)
-           1130 LOAD_ATTR               44 (speed)
-           1132 LOAD_CONST               0 (0)
-           1134 BINARY_SUBSCR
-           1136 BINARY_SUBTRACT
-           1138 LOAD_NAME               30 (b)
-           1140 LOAD_ATTR               44 (speed)
-           1142 LOAD_CONST               0 (0)
-           1144 STORE_SUBSCR
-           1146 EXTENDED_ARG             3
-           1148 JUMP_ABSOLUTE          798
-        >> 1150 POP_BLOCK
-
-110     >> 1152 LOAD_NAME               20 (cheat)
-           1154 LOAD_CONST              12 (2)
-           1156 BINARY_SUBSCR
-           1158 LOAD_CONST              10 (False)
-           1160 COMPARE_OP               2 (==)
-           1162 EXTENDED_ARG             4
-           1164 POP_JUMP_IF_FALSE     1174
-
-111        1166 LOAD_NAME               30 (b)
-           1168 LOAD_METHOD             54 (move)
-           1170 CALL_METHOD              0
-           1172 POP_TOP
-
-112     >> 1174 LOAD_NAME               20 (cheat)
-           1176 LOAD_CONST              26 (4)
-           1178 BINARY_SUBSCR
-           1180 LOAD_CONST              10 (False)
-           1182 COMPARE_OP               2 (==)
-           1184 EXTENDED_ARG             4
-           1186 POP_JUMP_IF_FALSE     1198
-
-113        1188 LOAD_NAME               30 (b)
-           1190 LOAD_METHOD             55 (draw)
-           1192 LOAD_NAME               13 (screen)
-           1194 CALL_METHOD              1
-           1196 POP_TOP
-
-114     >> 1198 LOAD_NAME               20 (cheat)
-           1200 LOAD_CONST               0 (0)
-           1202 BINARY_SUBSCR
-           1204 LOAD_CONST              10 (False)
-           1206 COMPARE_OP               2 (==)
-           1208 EXTENDED_ARG             2
-           1210 POP_JUMP_IF_FALSE      658
-
-115        1212 LOAD_NAME               24 (myBox)
-           1214 LOAD_ATTR               32 (rect)
-           1216 LOAD_METHOD             66 (colliderect)
-           1218 LOAD_NAME               30 (b)
-           1220 LOAD_ATTR               32 (rect)
-           1222 CALL_METHOD              1
-           1224 EXTENDED_ARG             2
-           1226 POP_JUMP_IF_FALSE      658
-
-116        1228 LOAD_NAME               67 (print)
-           1230 LOAD_CONST              27 ('score:')
-           1232 LOAD_NAME                0 (pygame)
-           1234 LOAD_ATTR               15 (time)
-           1236 LOAD_METHOD             33 (get_ticks)
-           1238 CALL_METHOD              0
-           1240 LOAD_NAME               34 (timeStart)
-           1242 BINARY_SUBTRACT
-           1244 LOAD_CONST              28 (1000)
-           1246 BINARY_TRUE_DIVIDE
-           1248 CALL_FUNCTION            2
-           1250 POP_TOP
-
-117        1252 LOAD_NAME                3 (webpygame)
-           1254 LOAD_ATTR               68 (render)
-           1256 LOAD_METHOD             69 (renderText)
-           1258 LOAD_NAME               70 (str)
-           1260 LOAD_NAME                0 (pygame)
-           1262 LOAD_ATTR               15 (time)
-           1264 LOAD_METHOD             33 (get_ticks)
-           1266 CALL_METHOD              0
-           1268 LOAD_NAME               34 (timeStart)
-           1270 BINARY_SUBTRACT
-           1272 LOAD_CONST              28 (1000)
-           1274 BINARY_TRUE_DIVIDE
-           1276 CALL_FUNCTION            1
-           1278 LOAD_CONST              29 ('s')
-           1280 BINARY_ADD
-           1282 LOAD_NAME               13 (screen)
-           1284 LOAD_NAME                8 (SCREEN_W)
-           1286 LOAD_CONST              12 (2)
-           1288 BINARY_TRUE_DIVIDE
-           1290 LOAD_NAME                9 (SCREEN_H)
-           1292 LOAD_CONST              12 (2)
-           1294 BINARY_TRUE_DIVIDE
-           1296 BUILD_TUPLE              2
-           1298 LOAD_CONST              30 ((0, 0, 255))
-           1300 LOAD_CONST               9 (80)
-           1302 CALL_METHOD              5
-           1304 POP_TOP
-
-118        1306 SETUP_LOOP              78 (to 1386)
-
-119     >> 1308 SETUP_LOOP              50 (to 1360)
-           1310 LOAD_NAME                0 (pygame)
-           1312 LOAD_ATTR               35 (event)
-           1314 LOAD_METHOD             36 (get)
-           1316 CALL_METHOD              0
-           1318 GET_ITER
-        >> 1320 FOR_ITER                36 (to 1358)
-           1322 STORE_NAME              35 (event)
-
-120        1324 LOAD_NAME               35 (event)
-           1326 LOAD_ATTR               37 (type)
-           1328 LOAD_NAME                0 (pygame)
-           1330 LOAD_ATTR               38 (QUIT)
-           1332 COMPARE_OP               2 (==)
-           1334 EXTENDED_ARG             5
-           1336 POP_JUMP_IF_FALSE     1320
-
-121        1338 LOAD_NAME                0 (pygame)
-           1340 LOAD_METHOD             39 (quit)
-           1342 CALL_METHOD              0
-           1344 POP_TOP
-
-122        1346 LOAD_NAME                1 (sys)
-           1348 LOAD_METHOD             40 (exit)
-           1350 CALL_METHOD              0
-           1352 POP_TOP
-           1354 EXTENDED_ARG             5
-           1356 JUMP_ABSOLUTE         1320
-        >> 1358 POP_BLOCK
-
-123     >> 1360 LOAD_NAME                0 (pygame)
-           1362 LOAD_ATTR               11 (display)
-           1364 LOAD_METHOD             71 (update)
-           1366 CALL_METHOD              0
-           1368 POP_TOP
-
-124        1370 LOAD_NAME               17 (clock)
-           1372 LOAD_METHOD             72 (tick)
-           1374 LOAD_CONST              31 (24)
-           1376 CALL_METHOD              1
-           1378 POP_TOP
-           1380 EXTENDED_ARG             5
-           1382 JUMP_ABSOLUTE         1308
-           1384 POP_BLOCK
-        >> 1386 EXTENDED_ARG             2
-           1388 JUMP_ABSOLUTE          658
-        >> 1390 POP_BLOCK
-
-127     >> 1392 LOAD_NAME               20 (cheat)
-           1394 LOAD_CONST              32 (7)
-           1396 BINARY_SUBSCR
-           1398 LOAD_CONST              10 (False)
-           1400 COMPARE_OP               2 (==)
-           1402 EXTENDED_ARG             5
-           1404 POP_JUMP_IF_FALSE     1416
-
-128        1406 LOAD_NAME                0 (pygame)
-           1408 LOAD_ATTR               11 (display)
-           1410 LOAD_METHOD             71 (update)
-           1412 CALL_METHOD              0
-           1414 POP_TOP
-
-129     >> 1416 LOAD_NAME               17 (clock)
-           1418 LOAD_METHOD             72 (tick)
-           1420 LOAD_CONST              31 (24)
-           1422 CALL_METHOD              1
-           1424 POP_TOP
-           1426 EXTENDED_ARG             1
-           1428 JUMP_ABSOLUTE          258
-           1430 POP_BLOCK
-        >> 1432 LOAD_CONST               1 (None)
-           1434 RETURN_VALUE
-
-Disassembly of <code object CLS_box at 0x0338D3E8, file "<dis>", line 3>:
-  3           0 LOAD_NAME                0 (__name__)
+  4          32 LOAD_CONST               2 ((1000, 600))
+             34 UNPACK_SEQUENCE          2
+             36 STORE_NAME               4 (SCREEN_W)
+             38 STORE_NAME               5 (SCREEN_H)
+
+  5          40 LOAD_CONST               3 ((110, 540))
+             42 UNPACK_SEQUENCE          2
+             44 STORE_NAME               6 (SPACE_UP)
+             46 STORE_NAME               7 (SPACE_DOWN)
+
+  6          48 LOAD_CONST               4 (5)
+             50 STORE_NAME               8 (SPEEDY_MAX)
+
+  7          52 LOAD_CONST               5 (((0, 0, 80), (80, 80, 80)))
+             54 UNPACK_SEQUENCE          2
+             56 STORE_NAME               9 (BG_COLOR)
+             58 STORE_NAME              10 (BORDER_COLOR)
+
+  8          60 LOAD_CONST               6 (0.5)
+             62 STORE_NAME              11 (G)
+
+  9          64 LOAD_CONST               7 ((50, 200, 20))
+             66 UNPACK_SEQUENCE          3
+             68 STORE_NAME              12 (STOWN_H_MIN)
+             70 STORE_NAME              13 (STOWN_H_MAX)
+             72 STORE_NAME              14 (STOWN_W)
+
+ 10          74 LOAD_CONST               8 (160)
+             76 STORE_NAME              15 (STONE_SPACE)
+
+ 12          78 LOAD_BUILD_CLASS
+             80 LOAD_CONST               9 (<code object CLS_gunship at 0x032769C0, file "<dis>", line 12>)
+             82 LOAD_CONST              10 ('CLS_gunship')
+             84 MAKE_FUNCTION            0
+             86 LOAD_CONST              10 ('CLS_gunship')
+             88 LOAD_NAME               16 (object)
+             90 CALL_FUNCTION            3
+             92 STORE_NAME              17 (CLS_gunship)
+
+ 46          94 LOAD_BUILD_CLASS
+             96 LOAD_CONST              11 (<code object CLS_stone at 0x032760D0, file "<dis>", line 46>)
+             98 LOAD_CONST              12 ('CLS_stone')
+            100 MAKE_FUNCTION            0
+            102 LOAD_CONST              12 ('CLS_stone')
+            104 LOAD_NAME               16 (object)
+            106 CALL_FUNCTION            3
+            108 STORE_NAME              18 (CLS_stone)
+
+ 59         110 LOAD_BUILD_CLASS
+            112 LOAD_CONST              13 (<code object CLS_framework at 0x03276AC8, file "<dis>", line 59>)
+            114 LOAD_CONST              14 ('CLS_framework')
+            116 MAKE_FUNCTION            0
+            118 LOAD_CONST              14 ('CLS_framework')
+            120 LOAD_NAME               16 (object)
+            122 CALL_FUNCTION            3
+            124 STORE_NAME              19 (CLS_framework)
+
+141         126 LOAD_NAME               17 (CLS_gunship)
+            128 LOAD_CONST              15 ('gunship.png')
+            130 LOAD_CONST              16 (40)
+            132 LOAD_CONST              17 (100)
+            134 LOAD_CONST              18 (84)
+            136 LOAD_CONST              19 (30)
+            138 LOAD_CONST              20 (3)
+            140 LOAD_CONST              21 (4)
+            142 CALL_FUNCTION            7
+            144 STORE_NAME              20 (z10)
+
+142         146 LOAD_NAME               19 (CLS_framework)
+            148 CALL_FUNCTION            0
+            150 STORE_NAME              21 (fwork)
+
+148         152 SETUP_LOOP             166 (to 320)
+
+149     >>  154 SETUP_LOOP             152 (to 308)
+            156 LOAD_NAME                0 (pygame)
+            158 LOAD_ATTR               22 (event)
+            160 LOAD_METHOD             23 (get)
+            162 CALL_METHOD              0
+            164 GET_ITER
+        >>  166 FOR_ITER               138 (to 306)
+            168 STORE_NAME              22 (event)
+
+150         170 LOAD_NAME               22 (event)
+            172 LOAD_ATTR               24 (type)
+            174 LOAD_NAME                0 (pygame)
+            176 LOAD_ATTR               25 (QUIT)
+            178 COMPARE_OP               2 (==)
+            180 POP_JUMP_IF_FALSE      206
+
+151         182 LOAD_NAME               21 (fwork)
+            184 LOAD_METHOD             26 (write_score)
+            186 CALL_METHOD              0
+            188 POP_TOP
+
+152         190 LOAD_NAME                0 (pygame)
+            192 LOAD_METHOD             27 (quit)
+            194 CALL_METHOD              0
+            196 POP_TOP
+
+153         198 LOAD_NAME                1 (sys)
+            200 LOAD_METHOD             28 (exit)
+            202 CALL_METHOD              0
+            204 POP_TOP
+
+154     >>  206 LOAD_NAME               22 (event)
+            208 LOAD_ATTR               24 (type)
+            210 LOAD_NAME                0 (pygame)
+            212 LOAD_ATTR               29 (KEYDOWN)
+            214 COMPARE_OP               2 (==)
+            216 POP_JUMP_IF_FALSE      232
+
+155         218 LOAD_NAME               21 (fwork)
+            220 LOAD_METHOD             30 (keydown)
+            222 LOAD_NAME               22 (event)
+            224 LOAD_ATTR               31 (key)
+            226 CALL_METHOD              1
+            228 POP_TOP
+            230 JUMP_ABSOLUTE          166
+
+156     >>  232 LOAD_NAME               22 (event)
+            234 LOAD_ATTR               24 (type)
+            236 LOAD_NAME                0 (pygame)
+            238 LOAD_ATTR               32 (KEYUP)
+            240 COMPARE_OP               2 (==)
+            242 EXTENDED_ARG             1
+            244 POP_JUMP_IF_FALSE      260
+
+157         246 LOAD_NAME               21 (fwork)
+            248 LOAD_METHOD             33 (keyup)
+            250 LOAD_NAME               22 (event)
+            252 LOAD_ATTR               31 (key)
+            254 CALL_METHOD              1
+            256 POP_TOP
+            258 JUMP_ABSOLUTE          166
+
+158     >>  260 LOAD_NAME               22 (event)
+            262 LOAD_ATTR               24 (type)
+            264 LOAD_NAME                0 (pygame)
+            266 LOAD_ATTR               34 (MOUSEBUTTONDOWN)
+            268 COMPARE_OP               2 (==)
+            270 EXTENDED_ARG             1
+            272 POP_JUMP_IF_FALSE      284
+
+159         274 LOAD_NAME               21 (fwork)
+            276 LOAD_METHOD             35 (mousebuttondown)
+            278 CALL_METHOD              0
+            280 POP_TOP
+            282 JUMP_ABSOLUTE          166
+
+160     >>  284 LOAD_NAME               22 (event)
+            286 LOAD_ATTR               24 (type)
+            288 LOAD_NAME                0 (pygame)
+            290 LOAD_ATTR               36 (MOUSEBUTTONUP)
+            292 COMPARE_OP               2 (==)
+            294 POP_JUMP_IF_FALSE      166
+
+161         296 LOAD_NAME               21 (fwork)
+            298 LOAD_METHOD             37 (mousebuttonup)
+            300 CALL_METHOD              0
+            302 POP_TOP
+            304 JUMP_ABSOLUTE          166
+        >>  306 POP_BLOCK
+
+162     >>  308 LOAD_NAME               21 (fwork)
+            310 LOAD_METHOD             38 (play)
+            312 CALL_METHOD              0
+            314 POP_TOP
+            316 JUMP_ABSOLUTE          154
+            318 POP_BLOCK
+        >>  320 LOAD_CONST               1 (None)
+            322 RETURN_VALUE
+
+Disassembly of <code object CLS_gunship at 0x032769C0, file "<dis>", line 12>:
+ 12           0 LOAD_NAME                0 (__name__)
               2 STORE_NAME               1 (__module__)
-              4 LOAD_CONST               0 ('CLS_box')
+              4 LOAD_CONST               0 ('CLS_gunship')
               6 STORE_NAME               2 (__qualname__)
 
-  4           8 LOAD_CONST               9 (((255, 255, 255),))
-             10 LOAD_CONST               2 (<code object __init__ at 0x0338D390, file "<dis>", line 4>)
-             12 LOAD_CONST               3 ('CLS_box.__init__')
-             14 MAKE_FUNCTION            1
-             16 STORE_NAME               3 (__init__)
+ 13           8 LOAD_CONST               1 (<code object __init__ at 0x0325A4F0, file "<dis>", line 13>)
+             10 LOAD_CONST               2 ('CLS_gunship.__init__')
+             12 MAKE_FUNCTION            0
+             14 STORE_NAME               3 (__init__)
 
-  8          18 LOAD_CONST               4 (<code object draw at 0x0338D288, file "<dis>", line 8>)
-             20 LOAD_CONST               5 ('CLS_box.draw')
-             22 MAKE_FUNCTION            0
-             24 STORE_NAME               4 (draw)
+ 24          16 LOAD_CONST               3 (<code object move at 0x0325A498, file "<dis>", line 24>)
+             18 LOAD_CONST               4 ('CLS_gunship.move')
+             20 MAKE_FUNCTION            0
+             22 STORE_NAME               4 (move)
 
- 10          26 LOAD_CONST               6 (<code object move at 0x0338D2E0, file "<dis>", line 10>)
-             28 LOAD_CONST               7 ('CLS_box.move')
-             30 MAKE_FUNCTION            0
-             32 STORE_NAME               5 (move)
-             34 LOAD_CONST               8 (None)
-             36 RETURN_VALUE
+ 35          24 LOAD_CONST               5 (<code object draw at 0x0325AE90, file "<dis>", line 35>)
+             26 LOAD_CONST               6 ('CLS_gunship.draw')
+             28 MAKE_FUNCTION            0
+             30 STORE_NAME               5 (draw)
 
-Disassembly of <code object __init__ at 0x0338D390, file "<dis>", line 4>:
-  5           0 LOAD_GLOBAL              0 (pygame)
-              2 LOAD_METHOD              1 (Rect)
-              4 LOAD_FAST                1 (rect)
-              6 CALL_METHOD              1
-              8 LOAD_FAST                0 (self)
-             10 STORE_ATTR               2 (rect)
+ 41          32 LOAD_CONST               7 (<code object quicker at 0x03276860, file "<dis>", line 41>)
+             34 LOAD_CONST               8 ('CLS_gunship.quicker')
+             36 MAKE_FUNCTION            0
+             38 STORE_NAME               6 (quicker)
+             40 LOAD_CONST               9 (None)
+             42 RETURN_VALUE
 
-  6          12 LOAD_FAST                2 (speed)
-             14 LOAD_FAST                0 (self)
-             16 STORE_ATTR               3 (speed)
+Disassembly of <code object __init__ at 0x0325A4F0, file "<dis>", line 13>:
+ 14           0 LOAD_GLOBAL              0 (pygame)
+              2 LOAD_ATTR                1 (image)
+              4 LOAD_METHOD              2 (load)
+              6 LOAD_FAST                1 (picFile)
+              8 CALL_METHOD              1
+             10 STORE_FAST               8 (pic)
 
-  7          18 LOAD_FAST                3 (color)
-             20 LOAD_FAST                0 (self)
-             22 STORE_ATTR               4 (color)
-             24 LOAD_CONST               0 (None)
-             26 RETURN_VALUE
+ 15          12 LOAD_FAST                8 (pic)
+             14 LOAD_METHOD              3 (set_colorkey)
+             16 LOAD_CONST               1 ((0, 0, 0))
+             18 CALL_METHOD              1
+             20 POP_TOP
 
-Disassembly of <code object draw at 0x0338D288, file "<dis>", line 8>:
-  9           0 LOAD_GLOBAL              0 (pygame)
+ 16          22 LOAD_FAST                8 (pic)
+             24 LOAD_FAST                0 (self)
+             26 STORE_ATTR               4 (pic)
+
+ 17          28 LOAD_FAST                2 (x)
+             30 LOAD_FAST                3 (y)
+             32 LOAD_FAST                4 (w)
+             34 LOAD_FAST                5 (h)
+             36 BUILD_TUPLE              4
+             38 UNPACK_SEQUENCE          4
+             40 LOAD_FAST                0 (self)
+             42 STORE_ATTR               5 (x)
+             44 LOAD_FAST                0 (self)
+             46 STORE_ATTR               6 (y)
+             48 LOAD_FAST                0 (self)
+             50 STORE_ATTR               7 (w)
+             52 LOAD_FAST                0 (self)
+             54 STORE_ATTR               8 (h)
+
+ 18          56 LOAD_FAST                6 (intercal)
+             58 LOAD_FAST                7 (frameNum)
+             60 ROT_TWO
+             62 LOAD_FAST                0 (self)
+             64 STORE_ATTR               9 (intercal)
+             66 LOAD_FAST                0 (self)
+             68 STORE_ATTR              10 (frameNum)
+
+ 19          70 LOAD_CONST               2 (0)
+             72 LOAD_FAST                0 (self)
+             74 STORE_ATTR              11 (counter)
+
+ 20          76 LOAD_CONST               3 (1000)
+             78 LOAD_FAST                0 (self)
+             80 STORE_ATTR              12 (counterTimeBegin)
+
+ 21          82 LOAD_FAST                0 (self)
+             84 LOAD_ATTR               12 (counterTimeBegin)
+             86 LOAD_FAST                0 (self)
+             88 STORE_ATTR              13 (counterTime)
+
+ 22          90 LOAD_CONST               4 (3)
+             92 LOAD_FAST                0 (self)
+             94 STORE_ATTR              14 (spdX)
+
+ 23          96 LOAD_CONST               5 ((0, 0))
+             98 UNPACK_SEQUENCE          2
+            100 LOAD_FAST                0 (self)
+            102 STORE_ATTR              15 (spdY)
+            104 LOAD_FAST                0 (self)
+            106 STORE_ATTR              16 (accY)
+            108 LOAD_CONST               0 (None)
+            110 RETURN_VALUE
+
+Disassembly of <code object move at 0x0325A498, file "<dis>", line 24>:
+ 25           0 LOAD_FAST                0 (self)
+              2 DUP_TOP
+              4 LOAD_ATTR                0 (spdY)
+              6 LOAD_FAST                0 (self)
+              8 LOAD_ATTR                1 (accY)
+             10 LOAD_GLOBAL              2 (G)
+             12 BINARY_ADD
+             14 INPLACE_ADD
+             16 ROT_TWO
+             18 STORE_ATTR               0 (spdY)
+
+ 26          20 LOAD_FAST                0 (self)
+             22 LOAD_ATTR                0 (spdY)
+             24 LOAD_GLOBAL              3 (SPEEDY_MAX)
+             26 UNARY_NEGATIVE
+             28 COMPARE_OP               0 (<)
+             30 POP_JUMP_IF_FALSE       42
+
+ 27          32 LOAD_GLOBAL              3 (SPEEDY_MAX)
+             34 UNARY_NEGATIVE
+             36 LOAD_FAST                0 (self)
+             38 STORE_ATTR               0 (spdY)
+             40 JUMP_FORWARD            16 (to 58)
+
+ 28     >>   42 LOAD_FAST                0 (self)
+             44 LOAD_ATTR                0 (spdY)
+             46 LOAD_GLOBAL              3 (SPEEDY_MAX)
+             48 COMPARE_OP               4 (>)
+             50 POP_JUMP_IF_FALSE       58
+
+ 29          52 LOAD_GLOBAL              3 (SPEEDY_MAX)
+             54 LOAD_FAST                0 (self)
+             56 STORE_ATTR               0 (spdY)
+
+ 30     >>   58 LOAD_FAST                0 (self)
+             60 DUP_TOP
+             62 LOAD_ATTR                4 (y)
+             64 LOAD_FAST                0 (self)
+             66 LOAD_ATTR                0 (spdY)
+             68 INPLACE_ADD
+             70 ROT_TWO
+             72 STORE_ATTR               4 (y)
+
+ 31          74 LOAD_FAST                0 (self)
+             76 LOAD_ATTR                4 (y)
+             78 LOAD_GLOBAL              5 (SPACE_UP)
+             80 COMPARE_OP               0 (<)
+             82 POP_JUMP_IF_FALSE       92
+
+ 32          84 LOAD_GLOBAL              5 (SPACE_UP)
+             86 LOAD_FAST                0 (self)
+             88 STORE_ATTR               4 (y)
+             90 JUMP_FORWARD            28 (to 120)
+
+ 33     >>   92 LOAD_FAST                0 (self)
+             94 LOAD_ATTR                4 (y)
+             96 LOAD_GLOBAL              6 (SPACE_DOWN)
+             98 LOAD_FAST                0 (self)
+            100 LOAD_ATTR                7 (h)
+            102 BINARY_SUBTRACT
+            104 COMPARE_OP               4 (>)
+            106 POP_JUMP_IF_FALSE      120
+
+ 34         108 LOAD_GLOBAL              6 (SPACE_DOWN)
+            110 LOAD_FAST                0 (self)
+            112 LOAD_ATTR                7 (h)
+            114 BINARY_SUBTRACT
+            116 LOAD_FAST                0 (self)
+            118 STORE_ATTR               4 (y)
+        >>  120 LOAD_CONST               0 (None)
+            122 RETURN_VALUE
+
+Disassembly of <code object draw at 0x0325AE90, file "<dis>", line 35>:
+ 36           0 LOAD_GLOBAL              0 (fwork)
+              2 LOAD_ATTR                1 (status)
+              4 LOAD_CONST               1 (1)
+              6 COMPARE_OP               2 (==)
+              8 POP_JUMP_IF_FALSE       14
+
+ 37          10 LOAD_CONST               2 (4)
+             12 STORE_FAST               2 (currentNum)
+
+ 38     >>   14 LOAD_FAST                0 (self)
+             16 LOAD_ATTR                2 (counter)
+             18 LOAD_FAST                0 (self)
+             20 LOAD_ATTR                3 (intercal)
+             22 BINARY_FLOOR_DIVIDE
+             24 LOAD_FAST                0 (self)
+             26 LOAD_ATTR                4 (frameNum)
+             28 BINARY_MODULO
+             30 STORE_FAST               2 (currentNum)
+
+ 39          32 LOAD_FAST                0 (self)
+             34 DUP_TOP
+             36 LOAD_ATTR                2 (counter)
+             38 LOAD_CONST               1 (1)
+             40 INPLACE_ADD
+             42 ROT_TWO
+             44 STORE_ATTR               2 (counter)
+
+ 40          46 LOAD_FAST                1 (scr)
+             48 LOAD_METHOD              5 (blit)
+             50 LOAD_FAST                0 (self)
+             52 LOAD_ATTR                6 (pic)
+             54 LOAD_FAST                0 (self)
+             56 LOAD_ATTR                7 (x)
+             58 LOAD_FAST                0 (self)
+             60 LOAD_ATTR                8 (y)
+             62 BUILD_TUPLE              2
+             64 LOAD_CONST               3 (0)
+             66 LOAD_FAST                2 (currentNum)
+             68 LOAD_FAST                0 (self)
+             70 LOAD_ATTR                9 (h)
+             72 BINARY_MULTIPLY
+             74 LOAD_FAST                0 (self)
+             76 LOAD_ATTR               10 (w)
+             78 LOAD_FAST                0 (self)
+             80 LOAD_ATTR                9 (h)
+             82 BUILD_TUPLE              4
+             84 CALL_METHOD              3
+             86 POP_TOP
+             88 LOAD_CONST               0 (None)
+             90 RETURN_VALUE
+
+Disassembly of <code object quicker at 0x03276860, file "<dis>", line 41>:
+ 42           0 LOAD_FAST                0 (self)
+              2 DUP_TOP
+              4 LOAD_ATTR                0 (counterTime)
+              6 LOAD_CONST               1 (1)
+              8 INPLACE_SUBTRACT
+             10 ROT_TWO
+             12 STORE_ATTR               0 (counterTime)
+
+ 43          14 LOAD_FAST                0 (self)
+             16 LOAD_ATTR                0 (counterTime)
+             18 LOAD_CONST               2 (0)
+             20 COMPARE_OP               2 (==)
+             22 POP_JUMP_IF_FALSE       46
+
+ 44          24 LOAD_FAST                0 (self)
+             26 LOAD_ATTR                1 (counterTimeBegin)
+             28 LOAD_FAST                0 (self)
+             30 STORE_ATTR               0 (counterTime)
+
+ 45          32 LOAD_FAST                0 (self)
+             34 DUP_TOP
+             36 LOAD_ATTR                2 (spdX)
+             38 LOAD_CONST               1 (1)
+             40 INPLACE_ADD
+             42 ROT_TWO
+             44 STORE_ATTR               2 (spdX)
+        >>   46 LOAD_CONST               0 (None)
+             48 RETURN_VALUE
+
+Disassembly of <code object CLS_stone at 0x032760D0, file "<dis>", line 46>:
+ 46           0 LOAD_NAME                0 (__name__)
+              2 STORE_NAME               1 (__module__)
+              4 LOAD_CONST               0 ('CLS_stone')
+              6 STORE_NAME               2 (__qualname__)
+
+ 47           8 LOAD_CONST               1 (<code object __init__ at 0x03276C28, file "<dis>", line 47>)
+             10 LOAD_CONST               2 ('CLS_stone.__init__')
+             12 MAKE_FUNCTION            0
+             14 STORE_NAME               3 (__init__)
+
+ 55          16 LOAD_CONST               3 (<code object move at 0x03276808, file "<dis>", line 55>)
+             18 LOAD_CONST               4 ('CLS_stone.move')
+             20 MAKE_FUNCTION            0
+             22 STORE_NAME               4 (move)
+
+ 57          24 LOAD_CONST               5 (<code object draw at 0x03276A18, file "<dis>", line 57>)
+             26 LOAD_CONST               6 ('CLS_stone.draw')
+             28 MAKE_FUNCTION            0
+             30 STORE_NAME               5 (draw)
+             32 LOAD_CONST               7 (None)
+             34 RETURN_VALUE
+
+Disassembly of <code object __init__ at 0x03276C28, file "<dis>", line 47>:
+ 48           0 LOAD_GLOBAL              0 (SCREEN_W)
+              2 LOAD_GLOBAL              1 (STOWN_W)
+              4 ROT_TWO
+              6 LOAD_FAST                0 (self)
+              8 STORE_ATTR               2 (x)
+             10 LOAD_FAST                0 (self)
+             12 STORE_ATTR               3 (w)
+
+ 49          14 LOAD_GLOBAL              4 (random)
+             16 LOAD_METHOD              5 (randint)
+             18 LOAD_GLOBAL              6 (STOWN_H_MIN)
+             20 LOAD_GLOBAL              7 (STOWN_H_MAX)
+             22 CALL_METHOD              2
+             24 STORE_FAST               1 (h)
+
+ 50          26 LOAD_FAST                1 (h)
+             28 LOAD_FAST                0 (self)
+             30 STORE_ATTR               8 (h)
+
+ 51          32 LOAD_FAST                1 (h)
+             34 LOAD_CONST               1 (2)
+             36 BINARY_MODULO
+             38 LOAD_CONST               2 (0)
+             40 COMPARE_OP               2 (==)
+             42 POP_JUMP_IF_FALSE       52
+
+ 52          44 LOAD_GLOBAL              9 (SPACE_UP)
+             46 LOAD_FAST                0 (self)
+             48 STORE_ATTR              10 (y)
+             50 JUMP_FORWARD            10 (to 62)
+
+ 54     >>   52 LOAD_GLOBAL             11 (SPACE_DOWN)
+             54 LOAD_FAST                1 (h)
+             56 BINARY_SUBTRACT
+             58 LOAD_FAST                0 (self)
+             60 STORE_ATTR              10 (y)
+        >>   62 LOAD_CONST               0 (None)
+             64 RETURN_VALUE
+
+Disassembly of <code object move at 0x03276808, file "<dis>", line 55>:
+ 56           0 LOAD_FAST                0 (self)
+              2 DUP_TOP
+              4 LOAD_ATTR                0 (x)
+              6 LOAD_GLOBAL              1 (z10)
+              8 LOAD_ATTR                2 (spdX)
+             10 INPLACE_SUBTRACT
+             12 ROT_TWO
+             14 STORE_ATTR               0 (x)
+             16 LOAD_CONST               0 (None)
+             18 RETURN_VALUE
+
+Disassembly of <code object draw at 0x03276A18, file "<dis>", line 57>:
+ 58           0 LOAD_GLOBAL              0 (pygame)
               2 LOAD_ATTR                1 (draw)
               4 LOAD_METHOD              2 (rect)
-              6 LOAD_FAST                1 (screen)
-              8 LOAD_FAST                0 (self)
-             10 LOAD_ATTR                3 (color)
-             12 LOAD_FAST                0 (self)
-             14 LOAD_ATTR                2 (rect)
-             16 LOAD_CONST               1 (0)
-             18 CALL_METHOD              4
+              6 LOAD_FAST                1 (scr)
+              8 LOAD_CONST               1 ((80, 80, 80))
+             10 LOAD_GLOBAL              0 (pygame)
+             12 LOAD_METHOD              3 (Rect)
+             14 LOAD_FAST                0 (self)
+             16 LOAD_ATTR                4 (x)
+             18 LOAD_FAST                0 (self)
+             20 LOAD_ATTR                5 (y)
+             22 LOAD_FAST                0 (self)
+             24 LOAD_ATTR                6 (w)
+             26 LOAD_FAST                0 (self)
+             28 LOAD_ATTR                7 (h)
+             30 BUILD_TUPLE              4
+             32 CALL_METHOD              1
+             34 LOAD_CONST               2 (0)
+             36 CALL_METHOD              4
+             38 POP_TOP
+             40 LOAD_CONST               0 (None)
+             42 RETURN_VALUE
+
+Disassembly of <code object CLS_framework at 0x03276AC8, file "<dis>", line 59>:
+ 59           0 LOAD_NAME                0 (__name__)
+              2 STORE_NAME               1 (__module__)
+              4 LOAD_CONST               0 ('CLS_framework')
+              6 STORE_NAME               2 (__qualname__)
+
+ 60           8 LOAD_CONST               1 (<code object __init__ at 0x03276758, file "<dis>", line 60>)
+             10 LOAD_CONST               2 ('CLS_framework.__init__')
+             12 MAKE_FUNCTION            0
+             14 STORE_NAME               3 (__init__)
+
+ 79          16 LOAD_CONST               3 (<code object play at 0x03276C80, file "<dis>", line 79>)
+             18 LOAD_CONST               4 ('CLS_framework.play')
+             20 MAKE_FUNCTION            0
+             22 STORE_NAME               4 (play)
+
+ 89          24 LOAD_CONST               5 (<code object draw_field at 0x03276DE0, file "<dis>", line 89>)
+             26 LOAD_CONST               6 ('CLS_framework.draw_field')
+             28 MAKE_FUNCTION            0
+             30 STORE_NAME               5 (draw_field)
+
+101          32 LOAD_CONST               7 (<code object stone_do at 0x032763E8, file "<dis>", line 101>)
+             34 LOAD_CONST               8 ('CLS_framework.stone_do')
+             36 MAKE_FUNCTION            0
+             38 STORE_NAME               6 (stone_do)
+
+117          40 LOAD_CONST               9 (<code object keydown at 0x03276E90, file "<dis>", line 117>)
+             42 LOAD_CONST              10 ('CLS_framework.keydown')
+             44 MAKE_FUNCTION            0
+             46 STORE_NAME               7 (keydown)
+
+123          48 LOAD_CONST              11 (<code object keyup at 0x03276180, file "<dis>", line 123>)
+             50 LOAD_CONST              12 ('CLS_framework.keyup')
+             52 MAKE_FUNCTION            0
+             54 STORE_NAME               8 (keyup)
+
+126          56 LOAD_CONST              13 (<code object mousebuttondown at 0x03276B78, file "<dis>", line 126>)
+             58 LOAD_CONST              14 ('CLS_framework.mousebuttondown')
+             60 MAKE_FUNCTION            0
+             62 STORE_NAME               9 (mousebuttondown)
+
+132          64 LOAD_CONST              15 (<code object mousebuttonup at 0x03276D88, file "<dis>", line 132>)
+             66 LOAD_CONST              16 ('CLS_framework.mousebuttonup')
+             68 MAKE_FUNCTION            0
+             70 STORE_NAME              10 (mousebuttonup)
+
+134          72 LOAD_CONST              17 (<code object write_score at 0x03276CD8, file "<dis>", line 134>)
+             74 LOAD_CONST              18 ('CLS_framework.write_score')
+             76 MAKE_FUNCTION            0
+             78 STORE_NAME              11 (write_score)
+             80 LOAD_CONST              19 (None)
+             82 RETURN_VALUE
+
+Disassembly of <code object __init__ at 0x03276758, file "<dis>", line 60>:
+ 61           0 LOAD_GLOBAL              0 (pygame)
+              2 LOAD_METHOD              1 (init)
+              4 CALL_METHOD              0
+              6 POP_TOP
+
+ 62           8 LOAD_GLOBAL              0 (pygame)
+             10 LOAD_ATTR                2 (display)
+             12 LOAD_METHOD              3 (set_mode)
+             14 LOAD_GLOBAL              4 (SCREEN_W)
+             16 LOAD_GLOBAL              5 (SCREEN_H)
+             18 BUILD_TUPLE              2
+             20 CALL_METHOD              1
+             22 LOAD_FAST                0 (self)
+             24 STORE_ATTR               6 (scr)
+
+ 63          26 LOAD_GLOBAL              0 (pygame)
+             28 LOAD_ATTR                2 (display)
+             30 LOAD_METHOD              7 (set_caption)
+             32 LOAD_CONST               1 ('RT GUNSHIP')
+             34 CALL_METHOD              1
+             36 POP_TOP
+
+ 64          38 LOAD_GLOBAL              0 (pygame)
+             40 LOAD_ATTR                8 (time)
+             42 LOAD_METHOD              9 (Clock)
+             44 CALL_METHOD              0
+             46 LOAD_FAST                0 (self)
+             48 STORE_ATTR              10 (clock)
+
+ 65          50 LOAD_GLOBAL              0 (pygame)
+             52 LOAD_ATTR               11 (font)
+             54 LOAD_METHOD             12 (Font)
+             56 LOAD_CONST               0 (None)
+             58 LOAD_CONST               2 (32)
+             60 CALL_METHOD              2
+             62 LOAD_FAST                0 (self)
+             64 STORE_ATTR              11 (font)
+
+ 66          66 LOAD_CONST               3 (0)
+             68 LOAD_FAST                0 (self)
+             70 STORE_ATTR              13 (score)
+
+ 67          72 LOAD_CONST               3 (0)
+             74 LOAD_FAST                0 (self)
+             76 STORE_ATTR              14 (scoreMax)
+
+ 76          78 BUILD_LIST               0
+             80 LOAD_FAST                0 (self)
+             82 STORE_ATTR              15 (stoneList)
+
+ 77          84 LOAD_CONST               3 (0)
+             86 LOAD_FAST                0 (self)
+             88 STORE_ATTR              16 (status)
+
+ 78          90 LOAD_GLOBAL              0 (pygame)
+             92 LOAD_ATTR               17 (image)
+             94 LOAD_METHOD             18 (load)
+             96 LOAD_CONST               4 ('face.png')
+             98 CALL_METHOD              1
+            100 LOAD_FAST                0 (self)
+            102 STORE_ATTR              19 (face)
+            104 LOAD_CONST               0 (None)
+            106 RETURN_VALUE
+
+Disassembly of <code object play at 0x03276C80, file "<dis>", line 79>:
+ 80           0 LOAD_FAST                0 (self)
+              2 LOAD_ATTR                0 (status)
+              4 LOAD_CONST               1 (1)
+              6 COMPARE_OP               2 (==)
+              8 POP_JUMP_IF_FALSE       14
+
+ 81          10 LOAD_CONST               0 (None)
+             12 RETURN_VALUE
+
+ 82     >>   14 LOAD_FAST                0 (self)
+             16 LOAD_METHOD              1 (draw_field)
+             18 CALL_METHOD              0
              20 POP_TOP
-             22 LOAD_CONST               0 (None)
-             24 RETURN_VALUE
 
-Disassembly of <code object move at 0x0338D2E0, file "<dis>", line 10>:
- 11           0 LOAD_FAST                0 (self)
-              2 LOAD_ATTR                0 (speed)
-              4 LOAD_CONST               1 (0)
-              6 BINARY_SUBSCR
-              8 LOAD_FAST                0 (self)
-             10 LOAD_ATTR                1 (rect)
-             12 LOAD_ATTR                2 (x)
-             14 BINARY_ADD
-             16 LOAD_FAST                0 (self)
-             18 LOAD_ATTR                1 (rect)
-             20 STORE_ATTR               2 (x)
+ 83          22 LOAD_FAST                0 (self)
+             24 LOAD_METHOD              2 (stone_do)
+             26 CALL_METHOD              0
+             28 POP_TOP
 
- 12          22 LOAD_FAST                0 (self)
-             24 LOAD_ATTR                0 (speed)
-             26 LOAD_CONST               2 (1)
-             28 BINARY_SUBSCR
-             30 LOAD_FAST                0 (self)
-             32 LOAD_ATTR                1 (rect)
-             34 LOAD_ATTR                3 (y)
-             36 BINARY_ADD
-             38 LOAD_FAST                0 (self)
-             40 LOAD_ATTR                1 (rect)
-             42 STORE_ATTR               3 (y)
-             44 LOAD_CONST               0 (None)
-             46 RETURN_VALUE
+ 84          30 LOAD_GLOBAL              3 (z10)
+             32 LOAD_METHOD              4 (move)
+             34 CALL_METHOD              0
+             36 POP_TOP
 
-Disassembly of <code object create_box at 0x0338D440, file "<dis>", line 14>:
- 15           0 SETUP_LOOP             104 (to 106)
+ 85          38 LOAD_GLOBAL              3 (z10)
+             40 LOAD_METHOD              5 (draw)
+             42 LOAD_FAST                0 (self)
+             44 LOAD_ATTR                6 (scr)
+             46 CALL_METHOD              1
+             48 POP_TOP
 
- 16     >>    2 LOAD_GLOBAL              0 (random)
-              4 LOAD_METHOD              1 (randint)
-              6 LOAD_CONST               1 (0)
-              8 LOAD_GLOBAL              2 (SCREEN_SIZE)
-             10 LOAD_CONST               1 (0)
-             12 BINARY_SUBSCR
-             14 CALL_METHOD              2
-             16 STORE_FAST               1 (x)
+ 86          50 LOAD_GLOBAL              3 (z10)
+             52 LOAD_METHOD              7 (quicker)
+             54 CALL_METHOD              0
+             56 POP_TOP
 
- 17          18 LOAD_GLOBAL              0 (random)
-             20 LOAD_METHOD              1 (randint)
-             22 LOAD_CONST               1 (0)
-             24 LOAD_GLOBAL              2 (SCREEN_SIZE)
-             26 LOAD_CONST               2 (1)
-             28 BINARY_SUBSCR
-             30 CALL_METHOD              2
-             32 STORE_FAST               2 (y)
+ 87          58 LOAD_GLOBAL              8 (pygame)
+             60 LOAD_ATTR                9 (display)
+             62 LOAD_METHOD             10 (update)
+             64 CALL_METHOD              0
+             66 POP_TOP
 
- 18          34 LOAD_GLOBAL              0 (random)
-             36 LOAD_METHOD              1 (randint)
-             38 LOAD_CONST               3 (10)
-             40 LOAD_CONST               4 (40)
-             42 CALL_METHOD              2
-             44 STORE_FAST               3 (w)
+ 88          68 LOAD_FAST                0 (self)
+             70 LOAD_ATTR               11 (clock)
+             72 LOAD_METHOD             12 (tick)
+             74 LOAD_CONST               2 (100)
+             76 CALL_METHOD              1
+             78 POP_TOP
+             80 LOAD_CONST               0 (None)
+             82 RETURN_VALUE
 
- 19          46 LOAD_GLOBAL              0 (random)
-             48 LOAD_METHOD              1 (randint)
-             50 LOAD_CONST               3 (10)
-             52 LOAD_CONST               4 (40)
-             54 CALL_METHOD              2
-             56 STORE_FAST               4 (h)
+Disassembly of <code object draw_field at 0x03276DE0, file "<dis>", line 89>:
+ 90           0 LOAD_FAST                0 (self)
+              2 LOAD_ATTR                0 (scr)
+              4 LOAD_METHOD              1 (fill)
+              6 LOAD_CONST               1 ((0, 0, 0))
+              8 CALL_METHOD              1
+             10 POP_TOP
 
- 20          58 LOAD_GLOBAL              3 (pygame)
-             60 LOAD_METHOD              4 (Rect)
-             62 LOAD_FAST                1 (x)
-             64 LOAD_FAST                2 (y)
-             66 LOAD_FAST                3 (w)
-             68 LOAD_FAST                4 (h)
-             70 BUILD_TUPLE              4
-             72 CALL_METHOD              1
-             74 STORE_FAST               5 (rect)
+ 91          12 LOAD_GLOBAL              2 (pygame)
+             14 LOAD_ATTR                3 (draw)
+             16 LOAD_METHOD              4 (rect)
+             18 LOAD_FAST                0 (self)
+             20 LOAD_ATTR                0 (scr)
+             22 LOAD_GLOBAL              5 (BG_COLOR)
+             24 LOAD_GLOBAL              2 (pygame)
+             26 LOAD_METHOD              6 (Rect)
+             28 LOAD_CONST               2 (0)
+             30 LOAD_GLOBAL              7 (SPACE_UP)
+             32 LOAD_GLOBAL              8 (SCREEN_W)
+             34 LOAD_GLOBAL              9 (SPACE_DOWN)
+             36 LOAD_GLOBAL              7 (SPACE_UP)
+             38 BINARY_SUBTRACT
+             40 BUILD_TUPLE              4
+             42 CALL_METHOD              1
+             44 LOAD_CONST               2 (0)
+             46 CALL_METHOD              4
+             48 POP_TOP
 
- 21          76 LOAD_FAST                5 (rect)
-             78 LOAD_METHOD              5 (colliderect)
-             80 LOAD_GLOBAL              6 (homeBox)
-             82 CALL_METHOD              1
-             84 POP_JUMP_IF_TRUE         2
-             86 LOAD_FAST                5 (rect)
-             88 LOAD_METHOD              7 (collidelist)
-             90 LOAD_FAST                0 (rectList)
-             92 CALL_METHOD              1
-             94 LOAD_CONST               5 (-1)
-             96 COMPARE_OP               2 (==)
-             98 POP_JUMP_IF_FALSE        2
+ 92          50 LOAD_GLOBAL              2 (pygame)
+             52 LOAD_ATTR                3 (draw)
+             54 LOAD_METHOD              4 (rect)
+             56 LOAD_FAST                0 (self)
+             58 LOAD_ATTR                0 (scr)
+             60 LOAD_GLOBAL             10 (BORDER_COLOR)
+             62 LOAD_GLOBAL              2 (pygame)
+             64 LOAD_METHOD              6 (Rect)
+             66 LOAD_CONST               2 (0)
+             68 LOAD_GLOBAL              9 (SPACE_DOWN)
+             70 LOAD_GLOBAL              8 (SCREEN_W)
+             72 LOAD_CONST               3 (10)
+             74 BUILD_TUPLE              4
+             76 CALL_METHOD              1
+             78 LOAD_CONST               2 (0)
+             80 CALL_METHOD              4
+             82 POP_TOP
 
- 22         100 BREAK_LOOP
-            102 JUMP_ABSOLUTE            2
-            104 POP_BLOCK
+ 93          84 LOAD_GLOBAL              2 (pygame)
+             86 LOAD_ATTR                3 (draw)
+             88 LOAD_METHOD              4 (rect)
+             90 LOAD_FAST                0 (self)
+             92 LOAD_ATTR                0 (scr)
+             94 LOAD_GLOBAL             10 (BORDER_COLOR)
+             96 LOAD_GLOBAL              2 (pygame)
+             98 LOAD_METHOD              6 (Rect)
+            100 LOAD_CONST               2 (0)
+            102 LOAD_GLOBAL              7 (SPACE_UP)
+            104 LOAD_CONST               3 (10)
+            106 BINARY_SUBTRACT
+            108 LOAD_GLOBAL              8 (SCREEN_W)
+            110 LOAD_CONST               3 (10)
+            112 BUILD_TUPLE              4
+            114 CALL_METHOD              1
+            116 LOAD_CONST               2 (0)
+            118 CALL_METHOD              4
+            120 POP_TOP
 
- 23     >>  106 SETUP_LOOP              50 (to 158)
+ 94         122 LOAD_FAST                0 (self)
+            124 LOAD_ATTR               11 (font)
+            126 LOAD_METHOD             12 (render)
+            128 LOAD_CONST               4 ('SCORE:')
+            130 LOAD_GLOBAL             13 (str)
+            132 LOAD_FAST                0 (self)
+            134 LOAD_ATTR               14 (score)
+            136 CALL_FUNCTION            1
+            138 BINARY_ADD
+            140 LOAD_CONST               5 (True)
+            142 LOAD_CONST               6 ((160, 180, 0))
+            144 CALL_METHOD              3
+            146 STORE_FAST               1 (img)
 
- 24     >>  108 LOAD_GLOBAL              0 (random)
-            110 LOAD_METHOD              1 (randint)
-            112 LOAD_CONST               1 (0)
-            114 LOAD_CONST               6 (2)
-            116 CALL_METHOD              2
-            118 LOAD_CONST               2 (1)
-            120 BINARY_SUBTRACT
-            122 LOAD_GLOBAL              0 (random)
-            124 LOAD_METHOD              1 (randint)
-            126 LOAD_CONST               1 (0)
-            128 LOAD_CONST               6 (2)
-            130 CALL_METHOD              2
-            132 LOAD_CONST               2 (1)
-            134 BINARY_SUBTRACT
-            136 BUILD_LIST               2
-            138 STORE_FAST               6 (speed)
-
- 25         140 LOAD_FAST                6 (speed)
-            142 LOAD_CONST               1 (0)
-            144 LOAD_CONST               1 (0)
-            146 BUILD_LIST               2
-            148 COMPARE_OP               3 (!=)
-            150 POP_JUMP_IF_FALSE      108
-
- 26         152 BREAK_LOOP
-            154 JUMP_ABSOLUTE          108
-            156 POP_BLOCK
-
- 27     >>  158 LOAD_GLOBAL              0 (random)
-            160 LOAD_METHOD              1 (randint)
-            162 LOAD_CONST               1 (0)
-            164 LOAD_CONST               7 (250)
+ 95         148 LOAD_FAST                0 (self)
+            150 LOAD_ATTR                0 (scr)
+            152 LOAD_METHOD             15 (blit)
+            154 LOAD_FAST                1 (img)
+            156 LOAD_GLOBAL              8 (SCREEN_W)
+            158 LOAD_CONST               7 (300)
+            160 BINARY_SUBTRACT
+            162 LOAD_CONST               3 (10)
+            164 BUILD_TUPLE              2
             166 CALL_METHOD              2
-            168 LOAD_GLOBAL              0 (random)
-            170 LOAD_METHOD              1 (randint)
-            172 LOAD_CONST               1 (0)
-            174 LOAD_CONST               7 (250)
-            176 CALL_METHOD              2
-            178 LOAD_GLOBAL              0 (random)
-            180 LOAD_METHOD              1 (randint)
-            182 LOAD_CONST               1 (0)
-            184 LOAD_CONST               7 (250)
-            186 CALL_METHOD              2
-            188 BUILD_TUPLE              3
-            190 STORE_FAST               7 (color)
+            168 POP_TOP
 
- 28         192 LOAD_GLOBAL              8 (CLS_box)
-            194 LOAD_FAST                5 (rect)
-            196 LOAD_FAST                6 (speed)
-            198 LOAD_FAST                7 (color)
-            200 CALL_FUNCTION            3
-            202 RETURN_VALUE
+ 96         170 LOAD_FAST                0 (self)
+            172 LOAD_ATTR               14 (score)
+            174 LOAD_FAST                0 (self)
+            176 LOAD_ATTR               16 (scoreMax)
+            178 COMPARE_OP               4 (>)
+            180 POP_JUMP_IF_FALSE      190
+
+ 97         182 LOAD_FAST                0 (self)
+            184 LOAD_ATTR               14 (score)
+            186 LOAD_FAST                0 (self)
+            188 STORE_ATTR              16 (scoreMax)
+
+ 98     >>  190 LOAD_FAST                0 (self)
+            192 LOAD_ATTR               11 (font)
+            194 LOAD_METHOD             12 (render)
+            196 LOAD_CONST               8 ('SCORE-Max:')
+            198 LOAD_GLOBAL             13 (str)
+            200 LOAD_FAST                0 (self)
+            202 LOAD_ATTR               16 (scoreMax)
+            204 CALL_FUNCTION            1
+            206 BINARY_ADD
+            208 LOAD_CONST               5 (True)
+            210 LOAD_CONST               9 ((80, 80, 255))
+            212 CALL_METHOD              3
+            214 STORE_FAST               1 (img)
+
+ 99         216 LOAD_FAST                0 (self)
+            218 LOAD_ATTR                0 (scr)
+            220 LOAD_METHOD             15 (blit)
+            222 LOAD_FAST                1 (img)
+            224 LOAD_GLOBAL              8 (SCREEN_W)
+            226 LOAD_CONST               7 (300)
+            228 BINARY_SUBTRACT
+            230 LOAD_CONST              10 (50)
+            232 BUILD_TUPLE              2
+            234 CALL_METHOD              2
+            236 POP_TOP
+
+100         238 LOAD_FAST                0 (self)
+            240 LOAD_ATTR                0 (scr)
+            242 LOAD_METHOD             15 (blit)
+            244 LOAD_FAST                0 (self)
+            246 LOAD_ATTR               17 (face)
+            248 LOAD_CONST              11 ((0, 0))
+            250 CALL_METHOD              2
+            252 POP_TOP
+            254 LOAD_CONST               0 (None)
+            256 RETURN_VALUE
+
+Disassembly of <code object stone_do at 0x032763E8, file "<dis>", line 101>:
+102           0 LOAD_CONST               1 (0)
+              2 STORE_FAST               1 (lastStoneX)
+
+103           4 SETUP_LOOP             170 (to 176)
+              6 LOAD_FAST                0 (self)
+              8 LOAD_ATTR                0 (stoneList)
+             10 GET_ITER
+        >>   12 FOR_ITER               160 (to 174)
+             14 STORE_FAST               2 (stone)
+
+104          16 LOAD_FAST                2 (stone)
+             18 LOAD_METHOD              1 (move)
+             20 CALL_METHOD              0
+             22 POP_TOP
+
+105          24 LOAD_FAST                2 (stone)
+             26 LOAD_METHOD              2 (draw)
+             28 LOAD_FAST                0 (self)
+             30 LOAD_ATTR                3 (scr)
+             32 CALL_METHOD              1
+             34 POP_TOP
+
+106          36 LOAD_FAST                2 (stone)
+             38 LOAD_ATTR                4 (x)
+             40 STORE_FAST               1 (lastStoneX)
+
+107          42 LOAD_FAST                2 (stone)
+             44 LOAD_ATTR                4 (x)
+             46 LOAD_FAST                2 (stone)
+             48 LOAD_ATTR                5 (w)
+             50 BINARY_ADD
+             52 LOAD_CONST               1 (0)
+             54 COMPARE_OP               0 (<)
+             56 POP_JUMP_IF_FALSE       70
+
+108          58 LOAD_FAST                0 (self)
+             60 LOAD_ATTR                0 (stoneList)
+             62 LOAD_METHOD              6 (pop)
+             64 LOAD_CONST               1 (0)
+             66 CALL_METHOD              1
+             68 POP_TOP
+
+109     >>   70 LOAD_GLOBAL              7 (z10)
+             72 LOAD_ATTR                4 (x)
+             74 LOAD_GLOBAL              7 (z10)
+             76 LOAD_ATTR                5 (w)
+             78 BINARY_ADD
+             80 LOAD_FAST                2 (stone)
+             82 LOAD_ATTR                4 (x)
+             84 COMPARE_OP               5 (>=)
+             86 POP_JUMP_IF_FALSE       12
+             88 LOAD_GLOBAL              7 (z10)
+             90 LOAD_ATTR                4 (x)
+             92 LOAD_FAST                2 (stone)
+             94 LOAD_ATTR                4 (x)
+             96 LOAD_FAST                2 (stone)
+             98 LOAD_ATTR                5 (w)
+            100 BINARY_ADD
+            102 COMPARE_OP               1 (<=)
+            104 POP_JUMP_IF_FALSE       12
+
+110         106 LOAD_GLOBAL              7 (z10)
+            108 LOAD_ATTR                8 (y)
+            110 LOAD_GLOBAL              7 (z10)
+            112 LOAD_ATTR                9 (h)
+            114 BINARY_ADD
+            116 LOAD_FAST                2 (stone)
+            118 LOAD_ATTR                8 (y)
+            120 COMPARE_OP               5 (>=)
+            122 POP_JUMP_IF_FALSE      150
+            124 LOAD_GLOBAL              7 (z10)
+            126 LOAD_ATTR                8 (y)
+            128 LOAD_FAST                2 (stone)
+            130 LOAD_ATTR                8 (y)
+            132 LOAD_FAST                2 (stone)
+            134 LOAD_ATTR                9 (h)
+            136 BINARY_ADD
+            138 COMPARE_OP               1 (<=)
+            140 POP_JUMP_IF_FALSE      150
+
+111         142 LOAD_CONST               2 (1)
+            144 LOAD_FAST                0 (self)
+            146 STORE_ATTR              10 (status)
+            148 JUMP_ABSOLUTE           12
+
+113     >>  150 LOAD_FAST                0 (self)
+            152 DUP_TOP
+            154 LOAD_ATTR               11 (score)
+            156 LOAD_FAST                2 (stone)
+            158 LOAD_ATTR                9 (h)
+            160 LOAD_GLOBAL              7 (z10)
+            162 LOAD_ATTR               12 (spdX)
+            164 BINARY_MULTIPLY
+            166 INPLACE_ADD
+            168 ROT_TWO
+            170 STORE_ATTR              11 (score)
+            172 JUMP_ABSOLUTE           12
+        >>  174 POP_BLOCK
+
+114     >>  176 LOAD_GLOBAL             13 (SCREEN_W)
+            178 LOAD_FAST                1 (lastStoneX)
+            180 BINARY_SUBTRACT
+            182 LOAD_GLOBAL             14 (random)
+            184 LOAD_METHOD             15 (randint)
+            186 LOAD_GLOBAL             16 (STONE_SPACE)
+            188 LOAD_GLOBAL             17 (int)
+            190 LOAD_GLOBAL             16 (STONE_SPACE)
+            192 LOAD_CONST               3 (1.5)
+            194 BINARY_MULTIPLY
+            196 CALL_FUNCTION            1
+            198 CALL_METHOD              2
+            200 COMPARE_OP               4 (>)
+            202 POP_JUMP_IF_FALSE      222
+
+115         204 LOAD_GLOBAL             18 (CLS_stone)
+            206 CALL_FUNCTION            0
+            208 STORE_FAST               2 (stone)
+
+116         210 LOAD_FAST                0 (self)
+            212 LOAD_ATTR                0 (stoneList)
+            214 LOAD_METHOD             19 (append)
+            216 LOAD_FAST                2 (stone)
+            218 CALL_METHOD              1
+            220 POP_TOP
+        >>  222 LOAD_CONST               0 (None)
+            224 RETURN_VALUE
+
+Disassembly of <code object keydown at 0x03276E90, file "<dis>", line 117>:
+118           0 LOAD_GLOBAL              0 (event)
+              2 LOAD_ATTR                1 (key)
+              4 LOAD_GLOBAL              2 (pygame)
+              6 LOAD_ATTR                3 (K_UP)
+              8 COMPARE_OP               2 (==)
+             10 POP_JUMP_IF_FALSE       20
+
+119          12 LOAD_CONST               1 (-1)
+             14 LOAD_GLOBAL              4 (z10)
+             16 STORE_ATTR               5 (accY)
+             18 JUMP_FORWARD            30 (to 50)
+
+120     >>   20 LOAD_GLOBAL              0 (event)
+             22 LOAD_ATTR                1 (key)
+             24 LOAD_GLOBAL              2 (pygame)
+             26 LOAD_ATTR                6 (K_RETURN)
+             28 COMPARE_OP               2 (==)
+             30 POP_JUMP_IF_FALSE       50
+
+121          32 LOAD_CONST               2 ((0, 0))
+             34 UNPACK_SEQUENCE          2
+             36 LOAD_FAST                0 (self)
+             38 STORE_ATTR               7 (status)
+             40 LOAD_FAST                0 (self)
+             42 STORE_ATTR               8 (score)
+
+122          44 BUILD_LIST               0
+             46 LOAD_FAST                0 (self)
+             48 STORE_ATTR               9 (stoneList)
+        >>   50 LOAD_CONST               0 (None)
+             52 RETURN_VALUE
+
+Disassembly of <code object keyup at 0x03276180, file "<dis>", line 123>:
+124           0 LOAD_GLOBAL              0 (event)
+              2 LOAD_ATTR                1 (key)
+              4 LOAD_GLOBAL              2 (pygame)
+              6 LOAD_ATTR                3 (K_UP)
+              8 COMPARE_OP               2 (==)
+             10 POP_JUMP_IF_FALSE       18
+
+125          12 LOAD_CONST               1 (0)
+             14 LOAD_GLOBAL              4 (z10)
+             16 STORE_ATTR               5 (accY)
+        >>   18 LOAD_CONST               0 (None)
+             20 RETURN_VALUE
+
+Disassembly of <code object mousebuttondown at 0x03276B78, file "<dis>", line 126>:
+127           0 LOAD_FAST                0 (self)
+              2 LOAD_ATTR                0 (status)
+              4 LOAD_CONST               1 (0)
+              6 COMPARE_OP               2 (==)
+              8 POP_JUMP_IF_FALSE       18
+
+128          10 LOAD_CONST               2 (-1)
+             12 LOAD_GLOBAL              1 (z10)
+             14 STORE_ATTR               2 (accY)
+             16 JUMP_FORWARD            18 (to 36)
+
+130     >>   18 LOAD_CONST               3 ((0, 0))
+             20 UNPACK_SEQUENCE          2
+             22 LOAD_FAST                0 (self)
+             24 STORE_ATTR               0 (status)
+             26 LOAD_FAST                0 (self)
+             28 STORE_ATTR               3 (score)
+
+131          30 BUILD_LIST               0
+             32 LOAD_FAST                0 (self)
+             34 STORE_ATTR               4 (stoneList)
+        >>   36 LOAD_CONST               0 (None)
+             38 RETURN_VALUE
+
+Disassembly of <code object mousebuttonup at 0x03276D88, file "<dis>", line 132>:
+133           0 LOAD_CONST               1 (0)
+              2 LOAD_GLOBAL              0 (z10)
+              4 STORE_ATTR               1 (accY)
+              6 LOAD_CONST               0 (None)
+              8 RETURN_VALUE
+
+Disassembly of <code object write_score at 0x03276CD8, file "<dis>", line 134>:
+135           0 LOAD_CONST               0 (None)
+              2 RETURN_VALUE

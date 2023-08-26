@@ -7,7 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const DEBUG = false;
 var StringFormat = function (instance, args) {
     let result = '', formatI = 0;
     for (let i = 0; i < instance.length; i++) {
@@ -38,69 +37,92 @@ var StringFormat = function (instance, args) {
     }
     return result;
 };
-var RequireNotEmpty;
-if (DEBUG) {
-    RequireNotEmpty = function (instance) {
-        if (instance == undefined) {
-            throw new BytecodeRunnerFatalErrorSignal("RequireNotEmpty", "Instance is undefined.");
-        }
-        if (instance == null) {
-            throw new BytecodeRunnerFatalErrorSignal("RequireNotEmpty", "Instance is null.");
-        }
-        return instance;
-    };
-}
-else {
-    RequireNotEmpty = function (instance) {
-        return instance;
-    };
-}
+var RequireNotEmpty = function (instance) {
+    if (instance == undefined) {
+        throw new BytecodeRunnerFatalErrorSignal("RequireNotEmpty", "Instance is undefined.");
+    }
+    if (instance == null) {
+        throw new BytecodeRunnerFatalErrorSignal("RequireNotEmpty", "Instance is null.");
+    }
+    return instance;
+};
 const GlobalThis = self;
-var PyObjectType;
-var WorkerMessageChannel = {
-    "MessageType": {
-        "M2W": {
-            "LifeCycle": {
-                "InitMessageChannel": "M2W:LifeCycle.InitMessageChannel"
-            },
-            "Keyboard": {
-                "KeyDown": "M2W:Keyboard.KeyDown",
-                "KeyUp": "M2W:Keyboard.KeyUp"
-            },
-            "Mouse": {
-                "MouseDown": "M2W:Mouse.MouseDown",
-                "MouseUp": "M2W:Mouse.MouseUp"
-            }
+var MessageType = {
+    "M2W": {
+        "LifeCycle": {
+            "InitMessageChannel": "M2W:LifeCycle.InitMessageChannel"
         },
-        "W2M": {
-            "LifeCycle": {
-                "RequestInitMessageChannel": "W2M:LifeCycle.RequestSharedMemory",
-                "ConnectionOK": "W2M:LifeCycle.ConnectionOK",
-                "MessagePumped": "W2M:LifeCycle.MessagePumped",
-                "Exit": "W2M:LifeCycle.Exit"
-            },
-            "Console": {
-                "Stdout": "W2M:Console.Stdout",
-                "Flush": "W2M:Console.Flush"
-            },
-            "GUI": {
-                "SetTitle": "W2M:GUI.SetTitle",
-                "RenderBitMap": "W2M:GUI.RenderBitMap"
-            }
+        "Keyboard": {
+            "KeyDown": "M2W:Keyboard.KeyDown",
+            "KeyUp": "M2W:Keyboard.KeyUp"
         },
-        "STATUS": {
-            "MAIN_ACCESS": 0,
-            "WORKER_ACCESS": 1
+        "Mouse": {
+            "MouseDown": "M2W:Mouse.MouseDown",
+            "MouseUp": "M2W:Mouse.MouseUp"
         }
     },
-    'internal': {
-        "canvas": undefined,
-        "pen": undefined,
-        "messageCache": []
+    "W2M": {
+        "LifeCycle": {
+            "RequestInitMessageChannel": "W2M:LifeCycle.RequestSharedMemory",
+            "ConnectionOK": "W2M:LifeCycle.ConnectionOK",
+            "MessagePumped": "W2M:LifeCycle.MessagePumped",
+            "Exit": "W2M:LifeCycle.Exit"
+        },
+        "Console": {
+            "Stdout": "W2M:Console.Stdout",
+            "Flush": "W2M:Console.Flush"
+        },
+        "GUI": {
+            "SetTitle": "W2M:GUI.SetTitle",
+            "RenderBitMap": "W2M:GUI.RenderBitMap"
+        }
     },
-    "run": (action, screenSize) => {
+    "STATUS": {
+        "MAIN_ACCESS": 0,
+        "WORKER_ACCESS": 1
+    }
+};
+class WorkerApp {
+    constructor() {
+        this.canvas = null;
+        this.canvas2DContext = null;
+        this.messageCache = [];
+        this.pumpMessagesDelegate = null;
+        this.postMessageDelegate = null;
+        this.getMessageDelegate = null;
+    }
+    static getInstance() {
+        if (WorkerApp.instance == null) {
+            WorkerApp.instance = new WorkerApp();
+        }
+        return WorkerApp.instance;
+    }
+    getCanvas() {
+        return RequireNotEmpty(this.canvas);
+    }
+    getContext2D() {
+        return RequireNotEmpty(this.canvas2DContext);
+    }
+    pumpMessages() {
+        if (this.pumpMessagesDelegate != null) {
+            this.pumpMessagesDelegate();
+        }
+    }
+    postMessage(message) {
+        if (this.postMessageDelegate != null) {
+            this.postMessageDelegate(message);
+        }
+    }
+    getMessage() {
+        if (this.getMessageDelegate != null) {
+            return this.getMessageDelegate();
+        }
+        return null;
+    }
+    launch(mainAction, screenSize) {
+        const currentWorker = this;
         GlobalThis.onmessage = function (ev) {
-            if (ev.data.messageType !== WorkerMessageChannel.MessageType.M2W.LifeCycle.InitMessageChannel) {
+            if (ev.data.messageType !== MessageType.M2W.LifeCycle.InitMessageChannel) {
                 return;
             }
             if (ev.data.messageBody === null || ev.data.messageBody === undefined) {
@@ -108,12 +130,12 @@ var WorkerMessageChannel = {
             }
             let messageBody = ev.data.messageBody;
             if (messageBody.canvas == null) {
-                WorkerMessageChannel.internal.canvas = new OffscreenCanvas(screenSize[0], screenSize[1]);
+                currentWorker.canvas = new OffscreenCanvas(screenSize[0], screenSize[1]);
             }
             else {
-                WorkerMessageChannel.internal.canvas = messageBody.canvas;
+                currentWorker.canvas = messageBody.canvas;
             }
-            WorkerMessageChannel.internal.pen = RequireNotEmpty(WorkerMessageChannel.internal.canvas.getContext("2d"));
+            currentWorker.canvas2DContext = RequireNotEmpty(currentWorker.canvas.getContext("2d"));
             GlobalThis.onmessage = null;
             if (messageBody.sharedBuffer.byteLength != 1027) {
                 return;
@@ -121,25 +143,28 @@ var WorkerMessageChannel = {
             let uint8Array = new Uint8Array(messageBody.sharedBuffer);
             let textDecoder = new TextDecoder("utf-8");
             let dataView = new DataView(messageBody.sharedBuffer);
-            WorkerMessageChannel.pumpMessages = () => {
-                if (Atomics.load(uint8Array, 0) != WorkerMessageChannel.MessageType.STATUS.WORKER_ACCESS) {
+            currentWorker.pumpMessagesDelegate = () => {
+                if (Atomics.load(uint8Array, 0) != MessageType.STATUS.WORKER_ACCESS) {
                     return;
                 }
                 else {
                     let messages = JSON.parse(textDecoder.decode(uint8Array.slice(3, dataView.getUint16(1, true) + 3)));
-                    Atomics.store(uint8Array, 0, WorkerMessageChannel.MessageType.STATUS.MAIN_ACCESS);
-                    WorkerMessageChannel.postMessage({
-                        "messageType": WorkerMessageChannel.MessageType.W2M.LifeCycle.MessagePumped,
+                    Atomics.store(uint8Array, 0, MessageType.STATUS.MAIN_ACCESS);
+                    currentWorker.postMessage({
+                        "messageType": MessageType.W2M.LifeCycle.MessagePumped,
                         "messageBody": null
                     });
                     for (let i = 0; i < messages.length; i++) {
-                        WorkerMessageChannel.internal.messageCache.push(messages[i]);
+                        currentWorker.messageCache.push(messages[i]);
                     }
                 }
             };
-            WorkerMessageChannel.getMessage = () => {
-                WorkerMessageChannel.pumpMessages();
-                let message = WorkerMessageChannel.internal.messageCache.shift();
+            currentWorker.postMessageDelegate = (message) => {
+                GlobalThis.postMessage(message);
+            };
+            currentWorker.getMessageDelegate = () => {
+                currentWorker.pumpMessages();
+                let message = currentWorker.messageCache.shift();
                 if (message == undefined) {
                     return null;
                 }
@@ -147,32 +172,29 @@ var WorkerMessageChannel = {
                     return message;
                 }
             };
-            WorkerMessageChannel.postMessage({
-                "messageType": WorkerMessageChannel.MessageType.W2M.LifeCycle.ConnectionOK,
+            currentWorker.postMessage({
+                "messageType": MessageType.W2M.LifeCycle.ConnectionOK,
                 "messageBody": null
             });
-            action((exitCode) => {
-                WorkerMessageChannel.postMessage({
-                    "messageType": WorkerMessageChannel.MessageType.W2M.LifeCycle.Exit,
-                    "messageBody": exitCode
-                });
-            });
+            mainAction();
         };
-        WorkerMessageChannel.postMessage({
-            "messageType": WorkerMessageChannel.MessageType.W2M.LifeCycle.RequestInitMessageChannel,
+        GlobalThis.postMessage({
+            "messageType": MessageType.W2M.LifeCycle.RequestInitMessageChannel,
             "messageBody": screenSize
         });
-    },
-    "postMessage": (message) => {
-        GlobalThis.postMessage(message);
-    },
-    "pumpMessages": () => null,
-    "getMessage": () => {
-        return null;
     }
-};
+    exit(exitCode) {
+        this.postMessage({
+            "messageType": MessageType.W2M.LifeCycle.Exit,
+            "messageBody": exitCode
+        });
+    }
+}
+WorkerApp.instance = null;
+var PyObjectType;
 var PythonRuntime;
-var PythonBytecode;
+var PythonConfiguration;
+var PythonResources = new Map();
 var PythonBuiltin;
 var PyObjectMethods;
 PyObjectType = {
@@ -320,10 +342,10 @@ class PyObjectBase {
                 "name": "python:object@instance.methodWrapper",
                 "attr": {},
                 "py_function_call": {
-                    "argNum": [PythonBytecode.codeObjectList[PyObject0.commandCode.commandEnv].arg - 1],
+                    "argNum": [PythonConfiguration.codeObjectList[PyObject0.commandCode.commandEnv].arg - 1],
                     "method": function () {
-                        PythonRuntime.storage.varStack.splice(PythonRuntime.storage.varStack.length - PythonBytecode.codeObjectList[PyObject0.commandCode.commandEnv].arg + 1, 0, PyThis);
-                        PyObject0.py_function_call(PythonBytecode.codeObjectList[PyObject0.commandCode.commandEnv].arg);
+                        PythonRuntime.storage.varStack.splice(PythonRuntime.storage.varStack.length - PythonConfiguration.codeObjectList[PyObject0.commandCode.commandEnv].arg + 1, 0, PyThis);
+                        PyObject0.py_function_call(PythonConfiguration.codeObjectList[PyObject0.commandCode.commandEnv].arg);
                     }
                 },
                 "$": ""
@@ -945,6 +967,30 @@ class PyObjectList extends PyObjectBase {
                 }));
                 break;
             }
+            case 'pop': {
+                PythonRuntime.storage.varStack.push(new PyObjectGlobal({
+                    'name': 'python:list@instance.pop',
+                    'attr': {},
+                    'py_function_call': {
+                        'argNum': [1],
+                        'method': () => {
+                            let index = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                            if (index.type != PyObjectType.Int) {
+                                PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation("python", "list@instance.pop", PyObjectMethods.py_function_call)));
+                            }
+                            if (index.value % 1 !== 0) {
+                                PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation("python", "list@instance.pop", PyObjectMethods.py_function_call)));
+                            }
+                            if (index.value < -this.value.length || index.value >= this.value.length) {
+                                PythonRuntime.storage.pyError.write(new PyObjectIndexError(new PyErrorInformation("python", "list@instance.pop", PyObjectMethods.py_function_call)));
+                            }
+                            PythonRuntime.storage.varStack.push(RequireNotEmpty(this.value.splice(index.value & this.value.length, 1)[0]));
+                        }
+                    },
+                    "$": ""
+                }));
+                break;
+            }
             default: {
                 PythonRuntime.storage.pyError.write(new PyObjectAttributeError(new PyErrorInformation('python', 'list', PyObjectMethods.py_attr_get)));
             }
@@ -968,10 +1014,10 @@ class PyObjectFunction extends PyObjectBase {
         this.defaultArgs = defaultArgs;
     }
     py_function_call(argNum) {
-        if (argNum > PythonBytecode.codeObjectList[this.commandCode.commandEnv].arg) {
+        if (argNum > PythonConfiguration.codeObjectList[this.commandCode.commandEnv].arg) {
             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('python', 'Function', PyObjectMethods.py_function_call)));
         }
-        else if (argNum + this.defaultArgs.length < PythonBytecode.codeObjectList[this.commandCode.commandEnv].arg) {
+        else if (argNum + this.defaultArgs.length < PythonConfiguration.codeObjectList[this.commandCode.commandEnv].arg) {
             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('python', 'Function', PyObjectMethods.py_function_call)));
         }
         PythonRuntime.storage.newStack(this.commandCode.commandEnv);
@@ -996,20 +1042,20 @@ class PyObjectClass extends PyObjectBase {
         this.type = PyObjectType.Class;
     }
     py_function_call(argNum) {
-        if (0 !== PythonBytecode.codeObjectList[this.constructorFunction.commandCode.commandEnv].arg) {
+        if (0 !== PythonConfiguration.codeObjectList[this.constructorFunction.commandCode.commandEnv].arg) {
             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('python', 'Function', PyObjectMethods.py_function_call)));
         }
         PythonRuntime.storage.newStack(this.constructorFunction.commandCode.commandEnv);
         PythonRuntime.storage.cellVarList[PythonRuntime.storage.stackPointer - 1] = this.constructorFunction.cellVarTuple;
         PythonRuntime.storage.varStack.push(new PyBlockFunctionCall());
-        let nameFieldIndex = PythonBytecode.codeObjectList[this.constructorFunction.commandCode.commandEnv].globalList.indexOf("__name__");
+        let nameFieldIndex = PythonConfiguration.codeObjectList[this.constructorFunction.commandCode.commandEnv].globalList.indexOf("__name__");
         if (nameFieldIndex !== -1) {
             PythonRuntime.storage.globalVarList[PythonRuntime.storage.stackPointer - 1][nameFieldIndex] = this.name;
         }
         PythonRuntime.runCodeObject(0, this.constructorFunction.commandCode.commandEnv, 0);
         let member = new Map();
-        for (let i = 0; i < PythonBytecode.codeObjectList[this.constructorFunction.commandCode.commandEnv].globalList.length; i++) {
-            member.set(PythonBytecode.codeObjectList[this.constructorFunction.commandCode.commandEnv].globalList[i], PythonRuntime.storage.globalVarList[PythonRuntime.storage.stackPointer - 1][i]);
+        for (let i = 0; i < PythonConfiguration.codeObjectList[this.constructorFunction.commandCode.commandEnv].globalList.length; i++) {
+            member.set(PythonConfiguration.codeObjectList[this.constructorFunction.commandCode.commandEnv].globalList[i], PythonRuntime.storage.globalVarList[PythonRuntime.storage.stackPointer - 1][i]);
         }
         let classObject = new PyObjectClassObject(this, member);
         PythonRuntime.storage.popStack();
@@ -1278,12 +1324,12 @@ PythonBuiltin = {
                 for (let i = 0; i < argNum; i++) {
                     PythonRuntime.storage.varStack.pop();
                 }
-                WorkerMessageChannel.postMessage({
-                    "messageType": WorkerMessageChannel.MessageType.W2M.Console.Stdout,
+                WorkerApp.getInstance().postMessage({
+                    "messageType": MessageType.W2M.Console.Stdout,
                     "messageBody": result.slice(0, result.length - 1) + '\n'
                 });
-                WorkerMessageChannel.postMessage({
-                    "messageType": WorkerMessageChannel.MessageType.W2M.Console.Flush,
+                WorkerApp.getInstance().postMessage({
+                    "messageType": MessageType.W2M.Console.Flush,
                     "messageBody": null
                 });
                 PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
@@ -1525,7 +1571,7 @@ PythonBuiltin = {
                                 let surface = buffer;
                                 let ctx;
                                 if (surface.value.name === "pygame:display.screenSurface@instance") {
-                                    ctx = RequireNotEmpty(WorkerMessageChannel.internal.pen);
+                                    ctx = WorkerApp.getInstance().getContext2D();
                                 }
                                 else if (surface.value.name === "pygame:Surface@instance") {
                                     ctx = surface.storage;
@@ -1564,6 +1610,7 @@ PythonBuiltin = {
             "QUIT": PyObjectFactory.constructPyObjectInt(256),
             "KEYDOWN": PyObjectFactory.constructPyObjectInt(768),
             "KEYUP": PyObjectFactory.constructPyObjectInt(769),
+            "K_RETURN": PyObjectFactory.constructPyObjectInt(13),
             "K_LEFT": PyObjectFactory.constructPyObjectInt(1073741904),
             "K_RIGHT": PyObjectFactory.constructPyObjectInt(1073741903),
             "K_UP": PyObjectFactory.constructPyObjectInt(1073741906),
@@ -1581,6 +1628,174 @@ PythonBuiltin = {
                         PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectInt(0));
                         let PyObject0 = new PyObjectTuple(2);
                         PythonRuntime.storage.varStack.push(PyObject0);
+                    }
+                },
+                "$": ""
+            },
+            "image": {
+                "name": "pygame:image",
+                "attr": {
+                    "load": {
+                        "name": "pygame:image.load",
+                        "attr": {},
+                        "py_function_call": {
+                            "argNum": [1],
+                            "method": function () {
+                                let path = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                if (path.type != PyObjectType.String) {
+                                    PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation("pygame", "pygame:image.load", PyObjectMethods.py_function_call)));
+                                }
+                                if (!PythonResources.has(path.value)) {
+                                    PythonRuntime.storage.pyError.write(new PyObjectValueError(new PyErrorInformation("pygame", "pygame:image.load", PyObjectMethods.py_function_call)));
+                                }
+                                let resource = RequireNotEmpty(PythonResources.get(path.value));
+                                if (resource.type !== "Image") {
+                                    PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation("pygame", "pygame:image.load", PyObjectMethods.py_function_call)));
+                                }
+                                let imageBitMap = resource.value;
+                                let canvas = new OffscreenCanvas(imageBitMap.width, imageBitMap.height);
+                                let ctx = RequireNotEmpty(canvas.getContext("2d"));
+                                ctx.drawImage(imageBitMap, 0, 0);
+                                PythonRuntime.storage.varStack.push(new PyObjectGlobal({
+                                    "name": "pygame:Surface@instance",
+                                    "attr": {
+                                        "set_colorkey": {
+                                            "name": "pygame:display.screenSurface@instance.set_colorkey",
+                                            "attr": {},
+                                            "py_function_call": {
+                                                "argNum": [1],
+                                                "method": function () {
+                                                    let buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                                    if (buffer.type != PyObjectType.Tuple) {
+                                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                    }
+                                                    let pos = buffer;
+                                                    if (pos.value.length != 3) {
+                                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                    }
+                                                    for (let i = 0; i < 3; i++) {
+                                                        if (pos.value[i].type != PyObjectType.Int) {
+                                                            PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                        }
+                                                    }
+                                                    let r = Math.floor(pos.value[0].value);
+                                                    let g = Math.floor(pos.value[1].value);
+                                                    let b = Math.floor(pos.value[2].value);
+                                                    let imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+                                                    for (let i = 0; i < imageData.data.length; i += 4) {
+                                                        if (imageData.data[i] === r && imageData.data[i + 1] === g && imageData.data[i + 2] === b) {
+                                                            imageData.data[i + 3] = 0;
+                                                        }
+                                                    }
+                                                    ctx.putImageData(imageData, 0, 0);
+                                                    PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
+                                                }
+                                            },
+                                            "$": ""
+                                        },
+                                        "blit": {
+                                            "name": "pygame:display.screenSurface@instance.blit",
+                                            "attr": {},
+                                            "py_function_call": {
+                                                "argNum": [2, 3],
+                                                "method": function (argNum) {
+                                                    let buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                                    let sourceRect = null;
+                                                    if (argNum == 3) {
+                                                        if (buffer.type != PyObjectType.Tuple) {
+                                                            PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                        }
+                                                        sourceRect = buffer;
+                                                        if (sourceRect.value.length != 4) {
+                                                            PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                        }
+                                                        for (let i = 0; i < 4; i++) {
+                                                            if (sourceRect.value[i].type != PyObjectType.Int) {
+                                                                PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                            }
+                                                            sourceRect.value[i] = PyObjectFactory.constructPyObjectInt(Math.floor(sourceRect.value[i].value));
+                                                        }
+                                                        buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                                    }
+                                                    if (buffer.type != PyObjectType.Tuple) {
+                                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                    }
+                                                    let pos = buffer;
+                                                    if (pos.value.length != 2) {
+                                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                    }
+                                                    for (let i = 0; i < 2; i++) {
+                                                        if (pos.value[i].type != PyObjectType.Int) {
+                                                            PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                        }
+                                                        pos.value[i] = PyObjectFactory.constructPyObjectInt(Math.floor(pos.value[i].value));
+                                                    }
+                                                    buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                                    if (buffer.type != PyObjectType.Global) {
+                                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                        return;
+                                                    }
+                                                    let surface = buffer;
+                                                    let ctx2;
+                                                    if (surface.value.name === "pygame:display.screenSurface@instance") {
+                                                        ctx2 = WorkerApp.getInstance().getContext2D();
+                                                    }
+                                                    else if (surface.value.name === "pygame:Surface@instance") {
+                                                        ctx2 = surface.storage;
+                                                    }
+                                                    else {
+                                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                        return;
+                                                    }
+                                                    if (argNum == 3) {
+                                                        ctx.drawImage(ctx2.canvas, sourceRect.value[0].value, sourceRect.value[1].value, sourceRect.value[2].value, sourceRect.value[3].value, pos.value[0].value, pos.value[1].value, sourceRect.value[2].value, sourceRect.value[3].value);
+                                                    }
+                                                    else {
+                                                        ctx.drawImage(ctx2.canvas, pos.value[0].value, pos.value[1].value);
+                                                    }
+                                                    PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
+                                                }
+                                            },
+                                            "$": ""
+                                        },
+                                        "fill": {
+                                            "name": "pygame:Surface@instance.fill",
+                                            "attr": {},
+                                            "py_function_call": {
+                                                "argNum": [1],
+                                                "method": function () {
+                                                    let PyObject0 = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                                    if (PyObject0.type != PyObjectType.Tuple) {
+                                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.globalSurface@instance.fill', PyObjectMethods.py_function_call)));
+                                                    }
+                                                    if (PyObject0.value.length != 3) {
+                                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.globalSurface@instance.fill', PyObjectMethods.py_function_call)));
+                                                    }
+                                                    for (let i = 0; i < 3; i++) {
+                                                        if (PyObject0.value[i].type != PyObjectType.Int) {
+                                                            PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.globalSurface@instance.fill', PyObjectMethods.py_function_call)));
+                                                        }
+                                                        if (PyObject0.value[i].value % 1 !== 0) {
+                                                            PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.globalSurface@instance.fill', PyObjectMethods.py_function_call)));
+                                                        }
+                                                    }
+                                                    ctx.fillStyle = StringFormat("rgb({},{},{})", [
+                                                        PyObject0.value[0].value.toString(),
+                                                        PyObject0.value[1].value.toString(),
+                                                        PyObject0.value[2].value.toString()
+                                                    ]);
+                                                    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                                                    PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
+                                                }
+                                            },
+                                            "$": ""
+                                        }
+                                    },
+                                    "$": ""
+                                }, ctx));
+                            }
+                        },
+                        "$": ""
                     }
                 },
                 "$": ""
@@ -1639,25 +1854,77 @@ PythonBuiltin = {
                                                         PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'font.Font@instance.render', PyObjectMethods.py_function_call)));
                                                     }
                                                     let text = buffer;
-                                                    RequireNotEmpty(WorkerMessageChannel.internal.pen).font = font.storage.toString() + "px sans-serif";
-                                                    let ctx = RequireNotEmpty(new OffscreenCanvas(RequireNotEmpty(WorkerMessageChannel.internal.pen).measureText(text.value).width, font.storage).getContext("2d"));
+                                                    WorkerApp.getInstance().getContext2D().font = font.storage.toString() + "px sans-serif";
+                                                    let ctx = RequireNotEmpty(new OffscreenCanvas(WorkerApp.getInstance().getContext2D().measureText(text.value).width, font.storage).getContext("2d"));
                                                     ctx.fillStyle = StringFormat("rgb({},{},{})", [
                                                         color.value[0].value.toString(),
                                                         color.value[1].value.toString(),
                                                         color.value[2].value.toString()
                                                     ]);
                                                     ctx.textBaseline = 'top';
+                                                    ctx.font = font.storage.toString() + "px sans-serif";
                                                     ctx.fillText(text.value, 0, 0);
                                                     PythonRuntime.storage.varStack.push(new PyObjectGlobal({
                                                         "name": "pygame:Surface@instance",
                                                         "attr": {
-                                                            "blit": {
-                                                                "name": "pygame:display.screenSurface@instance.blit",
+                                                            "set_colorkey": {
+                                                                "name": "pygame:Surface@instance.set_colorkey",
                                                                 "attr": {},
                                                                 "py_function_call": {
-                                                                    "argNum": [2],
+                                                                    "argNum": [1],
                                                                     "method": function () {
                                                                         let buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                                                        if (buffer.type != PyObjectType.Tuple) {
+                                                                            PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                                        }
+                                                                        let pos = buffer;
+                                                                        if (pos.value.length != 3) {
+                                                                            PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                                        }
+                                                                        for (let i = 0; i < 3; i++) {
+                                                                            if (pos.value[i].type != PyObjectType.Int) {
+                                                                                PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                                            }
+                                                                        }
+                                                                        let r = Math.floor(pos.value[0].value);
+                                                                        let g = Math.floor(pos.value[1].value);
+                                                                        let b = Math.floor(pos.value[2].value);
+                                                                        let imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+                                                                        for (let i = 0; i < imageData.data.length; i += 4) {
+                                                                            if (imageData.data[i] === r && imageData.data[i + 1] === g && imageData.data[i + 2] === b) {
+                                                                                imageData.data[i + 3] = 0;
+                                                                            }
+                                                                        }
+                                                                        ctx.putImageData(imageData, 0, 0);
+                                                                        PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
+                                                                    }
+                                                                },
+                                                                "$": ""
+                                                            },
+                                                            "blit": {
+                                                                "name": "pygame:Surface@instance.blit",
+                                                                "attr": {},
+                                                                "py_function_call": {
+                                                                    "argNum": [2, 3],
+                                                                    "method": function (argNum) {
+                                                                        let buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                                                        let sourceRect = null;
+                                                                        if (argNum == 3) {
+                                                                            if (buffer.type != PyObjectType.Tuple) {
+                                                                                PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                                            }
+                                                                            sourceRect = buffer;
+                                                                            if (sourceRect.value.length != 4) {
+                                                                                PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                                            }
+                                                                            for (let i = 0; i < 4; i++) {
+                                                                                if (sourceRect.value[i].type != PyObjectType.Int) {
+                                                                                    PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                                                }
+                                                                                sourceRect.value[i] = PyObjectFactory.constructPyObjectInt(Math.floor(sourceRect.value[i].value));
+                                                                            }
+                                                                            buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                                                        }
                                                                         if (buffer.type != PyObjectType.Tuple) {
                                                                             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
                                                                         }
@@ -1679,7 +1946,7 @@ PythonBuiltin = {
                                                                         let surface = buffer;
                                                                         let ctx2;
                                                                         if (surface.value.name === "pygame:display.screenSurface@instance") {
-                                                                            ctx2 = RequireNotEmpty(WorkerMessageChannel.internal.pen);
+                                                                            ctx2 = WorkerApp.getInstance().getContext2D();
                                                                         }
                                                                         else if (surface.value.name === "pygame:Surface@instance") {
                                                                             ctx2 = surface.storage;
@@ -1688,7 +1955,12 @@ PythonBuiltin = {
                                                                             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
                                                                             return;
                                                                         }
-                                                                        ctx.drawImage(ctx2.canvas, pos.value[0].value, pos.value[1].value);
+                                                                        if (argNum == 3) {
+                                                                            ctx.drawImage(ctx2.canvas, sourceRect.value[0].value, sourceRect.value[1].value, sourceRect.value[2].value, sourceRect.value[3].value, pos.value[0].value, pos.value[1].value, sourceRect.value[2].value, sourceRect.value[3].value);
+                                                                        }
+                                                                        else {
+                                                                            ctx.drawImage(ctx2.canvas, pos.value[0].value, pos.value[1].value);
+                                                                        }
                                                                         PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
                                                                     }
                                                                 },
@@ -2007,22 +2279,73 @@ PythonBuiltin = {
                                 if (PyObject0.value[1].type !== PyObjectType.Int || PyObject0.value[1].value <= 0 || PyObject0.value[1].value % 1 !== 0) {
                                     PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.set_mode', PyObjectMethods.py_function_call)));
                                 }
-                                if (RequireNotEmpty(WorkerMessageChannel.internal.canvas).width != PyObject0.value[0].value) {
+                                if (WorkerApp.getInstance().getCanvas().width != PyObject0.value[0].value) {
                                     PythonRuntime.storage.pyError.write(new PyObjectValueError(new PyErrorInformation('pygame', 'display.set_mode', PyObjectMethods.py_function_call)));
                                 }
-                                if (RequireNotEmpty(WorkerMessageChannel.internal.canvas).height != PyObject0.value[1].value) {
+                                if (WorkerApp.getInstance().getCanvas().height != PyObject0.value[1].value) {
                                     PythonRuntime.storage.pyError.write(new PyObjectValueError(new PyErrorInformation('pygame', 'display.set_mode', PyObjectMethods.py_function_call)));
                                 }
                                 PythonRuntime.storage.varStack.push(new PyObjectGlobal({
                                     "name": "pygame:display.screenSurface@instance",
                                     "attr": {
+                                        "set_colorkey": {
+                                            "name": "pygame:display.screenSurface@instance.set_colorkey",
+                                            "attr": {},
+                                            "py_function_call": {
+                                                "argNum": [1],
+                                                "method": function () {
+                                                    let buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                                    if (buffer.type != PyObjectType.Tuple) {
+                                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                    }
+                                                    let pos = buffer;
+                                                    if (pos.value.length != 3) {
+                                                        PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                    }
+                                                    for (let i = 0; i < 3; i++) {
+                                                        if (pos.value[i].type != PyObjectType.Int) {
+                                                            PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                        }
+                                                    }
+                                                    let r = Math.floor(pos.value[0].value);
+                                                    let g = Math.floor(pos.value[1].value);
+                                                    let b = Math.floor(pos.value[2].value);
+                                                    let imageData = WorkerApp.getInstance().getContext2D().getImageData(0, 0, WorkerApp.getInstance().getContext2D().canvas.width, WorkerApp.getInstance().getContext2D().canvas.height);
+                                                    for (let i = 0; i < imageData.data.length; i += 4) {
+                                                        if (imageData.data[i] === r && imageData.data[i + 1] === g && imageData.data[i + 2] === b) {
+                                                            imageData.data[i + 3] = 0;
+                                                        }
+                                                    }
+                                                    WorkerApp.getInstance().getContext2D().putImageData(imageData, 0, 0);
+                                                    PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
+                                                }
+                                            },
+                                            "$": ""
+                                        },
                                         "blit": {
                                             "name": "pygame:display.screenSurface@instance.blit",
                                             "attr": {},
                                             "py_function_call": {
-                                                "argNum": [2],
-                                                "method": function () {
+                                                "argNum": [2, 3],
+                                                "method": function (argNum) {
                                                     let buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                                    let sourceRect = null;
+                                                    if (argNum == 3) {
+                                                        if (buffer.type != PyObjectType.Tuple) {
+                                                            PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                        }
+                                                        sourceRect = buffer;
+                                                        if (sourceRect.value.length != 4) {
+                                                            PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                        }
+                                                        for (let i = 0; i < 4; i++) {
+                                                            if (sourceRect.value[i].type != PyObjectType.Int) {
+                                                                PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
+                                                            }
+                                                            sourceRect.value[i] = PyObjectFactory.constructPyObjectInt(Math.floor(sourceRect.value[i].value));
+                                                        }
+                                                        buffer = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                                                    }
                                                     if (buffer.type != PyObjectType.Tuple) {
                                                         PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
                                                     }
@@ -2042,18 +2365,23 @@ PythonBuiltin = {
                                                         return;
                                                     }
                                                     let surface = buffer;
-                                                    let ctx;
+                                                    let ctx2;
                                                     if (surface.value.name === "pygame:display.screenSurface@instance") {
-                                                        ctx = RequireNotEmpty(WorkerMessageChannel.internal.pen);
+                                                        ctx2 = WorkerApp.getInstance().getContext2D();
                                                     }
                                                     else if (surface.value.name === "pygame:Surface@instance") {
-                                                        ctx = surface.storage;
+                                                        ctx2 = surface.storage;
                                                     }
                                                     else {
                                                         PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.screenSurface@instance.blit', PyObjectMethods.py_function_call)));
                                                         return;
                                                     }
-                                                    RequireNotEmpty(WorkerMessageChannel.internal.pen).drawImage(ctx.canvas, pos.value[0].value, pos.value[1].value);
+                                                    if (argNum == 3) {
+                                                        WorkerApp.getInstance().getContext2D().drawImage(ctx2.canvas, sourceRect.value[0].value, sourceRect.value[1].value, sourceRect.value[2].value, sourceRect.value[3].value, pos.value[0].value, pos.value[1].value, sourceRect.value[2].value, sourceRect.value[3].value);
+                                                    }
+                                                    else {
+                                                        WorkerApp.getInstance().getContext2D().drawImage(ctx2.canvas, pos.value[0].value, pos.value[1].value);
+                                                    }
                                                     PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
                                                 }
                                             },
@@ -2080,12 +2408,12 @@ PythonBuiltin = {
                                                             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.globalSurface@instance.fill', PyObjectMethods.py_function_call)));
                                                         }
                                                     }
-                                                    RequireNotEmpty(WorkerMessageChannel.internal.pen).fillStyle = StringFormat("rgb({},{},{})", [
+                                                    WorkerApp.getInstance().getContext2D().fillStyle = StringFormat("rgb({},{},{})", [
                                                         PyObject0.value[0].value.toString(),
                                                         PyObject0.value[1].value.toString(),
                                                         PyObject0.value[2].value.toString()
                                                     ]);
-                                                    RequireNotEmpty(WorkerMessageChannel.internal.pen).fillRect(0, 0, RequireNotEmpty(WorkerMessageChannel.internal.canvas).width, RequireNotEmpty(WorkerMessageChannel.internal.canvas).height);
+                                                    WorkerApp.getInstance().getContext2D().fillRect(0, 0, WorkerApp.getInstance().getCanvas().width, WorkerApp.getInstance().getCanvas().height);
                                                     PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
                                                 }
                                             },
@@ -2108,8 +2436,8 @@ PythonBuiltin = {
                                 if (PyObject0.type !== PyObjectType.String) {
                                     PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('pygame', 'display.set_caption', PyObjectMethods.py_function_call)));
                                 }
-                                WorkerMessageChannel.postMessage({
-                                    'messageType': WorkerMessageChannel.MessageType.W2M.GUI.SetTitle,
+                                WorkerApp.getInstance().postMessage({
+                                    'messageType': MessageType.W2M.GUI.SetTitle,
                                     'messageBody': PyObject0.value
                                 });
                                 PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
@@ -2125,9 +2453,9 @@ PythonBuiltin = {
                             "method": (function () {
                                 if (OffscreenCanvasRenderingContext2D.prototype.commit == undefined) {
                                     return () => {
-                                        let imageBitMap = RequireNotEmpty(WorkerMessageChannel.internal.canvas).transferToImageBitmap();
-                                        WorkerMessageChannel.postMessage({
-                                            "messageType": WorkerMessageChannel.MessageType.W2M.GUI.RenderBitMap,
+                                        let imageBitMap = WorkerApp.getInstance().getCanvas().transferToImageBitmap();
+                                        WorkerApp.getInstance().postMessage({
+                                            "messageType": MessageType.W2M.GUI.RenderBitMap,
                                             "messageBody": imageBitMap
                                         });
                                         PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
@@ -2135,7 +2463,7 @@ PythonBuiltin = {
                                 }
                                 else {
                                     return () => {
-                                        RequireNotEmpty(WorkerMessageChannel.internal.pen).commit();
+                                        WorkerApp.getInstance().getContext2D().commit();
                                         PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectNone());
                                     };
                                 }
@@ -2214,7 +2542,7 @@ PythonBuiltin = {
                                 let surface = buffer;
                                 let ctx;
                                 if (surface.value.name === "pygame:display.screenSurface@instance") {
-                                    ctx = RequireNotEmpty(WorkerMessageChannel.internal.pen);
+                                    ctx = WorkerApp.getInstance().getContext2D();
                                 }
                                 else if (surface.value.name === "pygame:Surface@instance") {
                                     ctx = surface.storage;
@@ -2293,7 +2621,7 @@ PythonBuiltin = {
                                 let surface = buffer;
                                 let ctx;
                                 if (surface.value.name === "pygame:display.screenSurface@instance") {
-                                    ctx = RequireNotEmpty(WorkerMessageChannel.internal.pen);
+                                    ctx = WorkerApp.getInstance().getContext2D();
                                 }
                                 else if (surface.value.name === "pygame:Surface@instance") {
                                     ctx = surface.storage;
@@ -2304,9 +2632,9 @@ PythonBuiltin = {
                                 }
                                 ctx.beginPath();
                                 if (points.value.length > 0) {
-                                    RequireNotEmpty(WorkerMessageChannel.internal.pen).moveTo(Math.floor(points.value[0].value[0].value), Math.floor(points.value[0].value[1].value));
+                                    WorkerApp.getInstance().getContext2D().moveTo(Math.floor(points.value[0].value[0].value), Math.floor(points.value[0].value[1].value));
                                     for (let i = 1; i < points.value.length; i++) {
-                                        RequireNotEmpty(WorkerMessageChannel.internal.pen).lineTo(Math.floor(points.value[i].value[0].value), Math.floor(points.value[i].value[1].value));
+                                        WorkerApp.getInstance().getContext2D().lineTo(Math.floor(points.value[i].value[0].value), Math.floor(points.value[i].value[1].value));
                                     }
                                 }
                                 ctx.closePath();
@@ -2387,7 +2715,7 @@ PythonBuiltin = {
                                 let rH = buffer.value;
                                 let ctx;
                                 if (surface.value.name === "pygame:display.screenSurface@instance") {
-                                    ctx = RequireNotEmpty(WorkerMessageChannel.internal.pen);
+                                    ctx = WorkerApp.getInstance().getContext2D();
                                 }
                                 else if (surface.value.name === "pygame:Surface@instance") {
                                     ctx = surface.storage;
@@ -2452,17 +2780,17 @@ PythonBuiltin = {
                                                     }
                                                     let currentTime = Date.now();
                                                     if (currentTime - lastTickTime > 1000 / PyObject0.value) {
-                                                        WorkerMessageChannel.postMessage({
-                                                            "messageType": WorkerMessageChannel.MessageType.W2M.Console.Stdout,
+                                                        WorkerApp.getInstance().postMessage({
+                                                            "messageType": MessageType.W2M.Console.Stdout,
                                                             "messageBody": StringFormat("WebPygame renderer cann't keep up! The current frame cost {}ms to render ({}FPS), which is longer than the maximum render time {}ms.\n", [Math.floor(currentTime - lastTickTime).toString(), (Math.floor(10000 / (currentTime - lastTickTime)) / 10).toString(), Math.floor(1000 / PyObject0.value).toString()])
                                                         });
-                                                        WorkerMessageChannel.postMessage({
-                                                            "messageType": WorkerMessageChannel.MessageType.W2M.Console.Flush,
+                                                        WorkerApp.getInstance().postMessage({
+                                                            "messageType": MessageType.W2M.Console.Flush,
                                                             "messageBody": null
                                                         });
                                                     }
                                                     else {
-                                                        WorkerMessageChannel.pumpMessages();
+                                                        WorkerApp.getInstance().pumpMessages();
                                                         currentTime = Date.now();
                                                         while (currentTime - lastTickTime < 1000 / PyObject0.value) {
                                                             currentTime = Date.now();
@@ -2496,12 +2824,12 @@ PythonBuiltin = {
                                 let events = new PyObjectList(0);
                                 let event;
                                 while (true) {
-                                    event = WorkerMessageChannel.getMessage();
+                                    event = WorkerApp.getInstance().getMessage();
                                     if (event == null) {
                                         break;
                                     }
                                     switch (event.messageType) {
-                                        case WorkerMessageChannel.MessageType.M2W.Keyboard.KeyDown: {
+                                        case MessageType.M2W.Keyboard.KeyDown: {
                                             let key = -1;
                                             switch (event.messageBody.key) {
                                                 case "ArrowUp": {
@@ -2518,6 +2846,10 @@ PythonBuiltin = {
                                                 }
                                                 case "ArrowRight": {
                                                     key = 1073741903;
+                                                    break;
+                                                }
+                                                case "Enter": {
+                                                    key = 13;
                                                     break;
                                                 }
                                             }
@@ -2533,7 +2865,7 @@ PythonBuiltin = {
                                             }
                                             break;
                                         }
-                                        case WorkerMessageChannel.MessageType.M2W.Keyboard.KeyUp: {
+                                        case MessageType.M2W.Keyboard.KeyUp: {
                                             let key = -1;
                                             switch (event.messageBody.key) {
                                                 case "ArrowUp": {
@@ -2552,6 +2884,10 @@ PythonBuiltin = {
                                                     key = 1073741903;
                                                     break;
                                                 }
+                                                case "Enter": {
+                                                    key = 13;
+                                                    break;
+                                                }
                                             }
                                             if (key != -1) {
                                                 events.value.push(new PyObjectGlobal({
@@ -2565,7 +2901,7 @@ PythonBuiltin = {
                                             }
                                             break;
                                         }
-                                        case WorkerMessageChannel.MessageType.M2W.Mouse.MouseDown: {
+                                        case MessageType.M2W.Mouse.MouseDown: {
                                             let pos = new PyObjectTuple(0);
                                             pos.value.push(PyObjectFactory.constructPyObjectInt(event.messageBody.pos[0]));
                                             pos.value.push(PyObjectFactory.constructPyObjectInt(event.messageBody.pos[1]));
@@ -2579,7 +2915,7 @@ PythonBuiltin = {
                                             }));
                                             break;
                                         }
-                                        case WorkerMessageChannel.MessageType.M2W.Mouse.MouseUp: {
+                                        case MessageType.M2W.Mouse.MouseUp: {
                                             events.value.push(new PyObjectGlobal({
                                                 "name": "pygame:event.MouseDownEvent@instance",
                                                 "attr": {
@@ -2755,12 +3091,12 @@ PythonRuntime = {
                 throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Storage.newStack", "Maximum recursion depth exceeded.");
             }
             let newVarList = [];
-            for (let i = 0; i < PythonBytecode.codeObjectList[commandEnv].varList.length; i++) {
+            for (let i = 0; i < PythonConfiguration.codeObjectList[commandEnv].varList.length; i++) {
                 newVarList.push(null);
             }
             PythonRuntime.storage.varList.push(newVarList);
             let newCellVarList = [];
-            for (let i = 0; i < PythonBytecode.codeObjectList[commandEnv].cellVarList.length; i++) {
+            for (let i = 0; i < PythonConfiguration.codeObjectList[commandEnv].cellVarList.length; i++) {
                 let PyObject0;
                 newCellVarList.push(new PyObjectStoragePointer(() => {
                     return PyObject0;
@@ -2770,7 +3106,7 @@ PythonRuntime = {
             }
             PythonRuntime.storage.cellVarList.push(newCellVarList);
             let newGlobalVarList = [];
-            for (let i = 0; i < PythonBytecode.codeObjectList[commandEnv].globalList.length; i++) {
+            for (let i = 0; i < PythonConfiguration.codeObjectList[commandEnv].globalList.length; i++) {
                 newGlobalVarList.push(null);
             }
             PythonRuntime.storage.globalVarList.push(newGlobalVarList);
@@ -2840,12 +3176,14 @@ PythonRuntime = {
                 PyObject0.py_binary_add(PyObject1);
                 return BytecodeRunnerNextResultInstance;
             }
+            case 56:
             case 24: {
                 let PyObject1 = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
                 let PyObject0 = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
                 PyObject0.py_binary_subtract(PyObject1);
                 return BytecodeRunnerNextResultInstance;
             }
+            case 57:
             case 25: {
                 let PyObject1 = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
                 let PyObject0 = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
@@ -2987,17 +3325,17 @@ PythonRuntime = {
             }
             case 95: {
                 let PyObject0 = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
-                PyObject0.py_attr_set(PythonBytecode.codeObjectList[commandEnv].globalList[commandArg]);
+                PyObject0.py_attr_set(PythonConfiguration.codeObjectList[commandEnv].globalList[commandArg]);
                 return BytecodeRunnerNextResultInstance;
             }
             case 100: {
-                PythonRuntime.storage.varStack.push(PythonBytecode.codeObjectList[commandEnv].constList[commandArg]);
+                PythonRuntime.storage.varStack.push(PythonConfiguration.codeObjectList[commandEnv].constList[commandArg]);
                 return BytecodeRunnerNextResultInstance;
             }
             case 101: {
                 let PyObject0 = PythonRuntime.storage.globalVarList[PythonRuntime.storage.stackPointer - 1][commandArg];
                 if (PyObject0 === undefined || PyObject0 === null) {
-                    let globalObjectName = PythonBytecode.codeObjectList[commandEnv].globalList[commandArg];
+                    let globalObjectName = PythonConfiguration.codeObjectList[commandEnv].globalList[commandArg];
                     let value = PyObjectFactory.constructPyObjectGlobal(globalObjectName);
                     if (value == null) {
                         PythonRuntime.storage.pyError.write(new PyObjectNameError(new PyErrorInformation('python', '$pvm$.ByteCodeInterpreter.LOAD_NAME', PyObjectMethods.py_internal)));
@@ -3024,7 +3362,7 @@ PythonRuntime = {
             }
             case 106: {
                 let PyObject0 = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
-                PyObject0.py_attr_get(PythonBytecode.codeObjectList[commandEnv].globalList[commandArg]);
+                PyObject0.py_attr_get(PythonConfiguration.codeObjectList[commandEnv].globalList[commandArg]);
                 return BytecodeRunnerNextResultInstance;
             }
             case 107: {
@@ -3075,7 +3413,9 @@ PythonRuntime = {
                 }
             }
             case 108: {
-                let globalObjectName = PythonBytecode.codeObjectList[commandEnv].globalList[commandArg];
+                RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                let globalObjectName = PythonConfiguration.codeObjectList[commandEnv].globalList[commandArg];
                 let value = PyObjectFactory.constructPyObjectGlobal(globalObjectName);
                 if (value == null) {
                     PythonRuntime.storage.pyError.write(new PyObjectNameError(new PyErrorInformation('python', '$pvm$.ByteCodeInterpreter.IMPORT_NAME', PyObjectMethods.py_internal)));
@@ -3112,8 +3452,8 @@ PythonRuntime = {
                 }
             }
             case 116: {
-                let globalObjectName = PythonBytecode.codeObjectList[commandEnv].globalList[commandArg];
-                let globalVariableIndex = PythonBytecode.codeObjectList[0].globalList.indexOf(globalObjectName);
+                let globalObjectName = PythonConfiguration.codeObjectList[commandEnv].globalList[commandArg];
+                let globalVariableIndex = PythonConfiguration.codeObjectList[0].globalList.indexOf(globalObjectName);
                 if (globalVariableIndex !== -1) {
                     if (PythonRuntime.storage.globalVarList[0][globalVariableIndex] != null) {
                         PythonRuntime.storage.varStack.push(PythonRuntime.storage.globalVarList[0][globalVariableIndex]);
@@ -3259,7 +3599,7 @@ PythonRuntime = {
             }
             case 160: {
                 let PyObject0 = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
-                PyObject0.py_method_load(PythonBytecode.codeObjectList[commandEnv].globalList[commandArg]);
+                PyObject0.py_method_load(PythonConfiguration.codeObjectList[commandEnv].globalList[commandArg]);
                 return BytecodeRunnerNextResultInstance;
             }
             case 161: {
@@ -3273,10 +3613,10 @@ PythonRuntime = {
         }
     },
     "runCodeObject": function (commandIndex, commandEnv, extendedArg) {
-        while (commandIndex >= 0 && commandIndex < PythonBytecode.codeObjectList[commandEnv].opList.length) {
-            WorkerMessageChannel.pumpMessages();
-            let commandName = PythonBytecode.codeObjectList[commandEnv].opList[commandIndex];
-            let commandArg = (extendedArg << 8) | PythonBytecode.codeObjectList[commandEnv].opList[commandIndex + 1];
+        while (commandIndex >= 0 && commandIndex < PythonConfiguration.codeObjectList[commandEnv].opList.length) {
+            WorkerApp.getInstance().pumpMessages();
+            let commandName = PythonConfiguration.codeObjectList[commandEnv].opList[commandIndex];
+            let commandArg = (extendedArg << 8) | PythonConfiguration.codeObjectList[commandEnv].opList[commandIndex + 1];
             try {
                 let result = PythonRuntime.runBytecode(commandIndex, commandEnv, commandName, commandArg);
                 if (result instanceof BytecodeRunnerNextResult) {
@@ -3334,45 +3674,68 @@ PythonRuntime = {
         }
     }
 };
-WorkerMessageChannel.run((exitCallback) => {
+WorkerApp.getInstance().launch(() => {
     (() => __awaiter(this, void 0, void 0, function* () {
-        PythonBytecode = yield (yield fetch("bytecode.json")).json();
-    }))().then(() => {
+        PythonConfiguration = yield (yield fetch("configuration.json")).json();
+    }))().then(() => __awaiter(this, void 0, void 0, function* () {
+        let promises = [];
+        for (let i = 0; i < PythonConfiguration.resources.length; i++) {
+            let resource = PythonConfiguration.resources[i];
+            switch (resource.type) {
+                case "Image": {
+                    promises.push({
+                        "type": "Image",
+                        "value": fetch(StringFormat("resources/{}", [PythonConfiguration.resources[i].path])).then(response => response.blob()).then(blob => createImageBitmap(blob))
+                    });
+                    break;
+                }
+                default: {
+                    throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Resources.UnknownType", StringFormat("Unknown resource type {} in resources #{}.", [resource.type, i.toString()]));
+                }
+            }
+        }
+        for (let i = 0; i < promises.length; i++) {
+            PythonResources.set(PythonConfiguration.resources[i].path, {
+                "type": PythonConfiguration.resources[i].type,
+                "value": yield promises[i].value
+            });
+        }
+    })).then(() => {
         PythonRuntime.storage.newStack(0);
-        for (let codeObjectIndex = 0; codeObjectIndex < PythonBytecode.codeObjectList.length; codeObjectIndex++) {
-            for (let constIndex = 0; constIndex < PythonBytecode.codeObjectList[codeObjectIndex].constList.length; constIndex++) {
-                let constValue = PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex].value;
-                switch (PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex].type) {
+        for (let codeObjectIndex = 0; codeObjectIndex < PythonConfiguration.codeObjectList.length; codeObjectIndex++) {
+            for (let constIndex = 0; constIndex < PythonConfiguration.codeObjectList[codeObjectIndex].constList.length; constIndex++) {
+                let constValue = PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].value;
+                switch (PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].type) {
                     case 'Number': {
                         if (typeof constValue !== "number") {
                             throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Number.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
                         }
-                        PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectInt(constValue);
+                        PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectInt(constValue);
                         break;
                     }
                     case 'String': {
                         if (typeof constValue !== "string") {
                             throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.String.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
                         }
-                        PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectString(constValue);
+                        PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectString(constValue);
                         break;
                     }
                     case 'Bool': {
                         if (typeof constValue !== "number") {
                             throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Bool.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
                         }
-                        PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectBool(constValue === 1);
+                        PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectBool(constValue === 1);
                         break;
                     }
                     case 'None': {
-                        PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectNone();
+                        PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectNone();
                         break;
                     }
                     case 'Code': {
                         if (typeof constValue !== "number") {
                             throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Code.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
                         }
-                        PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectCode(constValue);
+                        PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectCode(constValue);
                         break;
                     }
                     case 'Tuple': {
@@ -3390,92 +3753,80 @@ WorkerMessageChannel.run((exitCallback) => {
                                 throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Tuple.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof _list, constIndex.toString(), codeObjectIndex.toString()]));
                             }
                         };
-                        decoder(PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex].value);
-                        PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex] = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                        decoder(PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].value);
+                        PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
                         break;
                     }
                     default: {
-                        throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.UnknownType", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof PythonBytecode.codeObjectList[codeObjectIndex].constList[constIndex].type, constIndex.toString(), codeObjectIndex.toString()]));
+                        throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.UnknownType", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].type, constIndex.toString(), codeObjectIndex.toString()]));
                     }
                 }
             }
         }
         let startTime = Date.now();
-        let success = false;
         try {
             PythonRuntime.runCodeObject(0, 0, 0);
-            success = true;
         }
         catch (error) {
-            if (error instanceof BytecodeRunnerPyErrorSignal) {
-                let time = Date.now() - startTime;
-                let pyError = RequireNotEmpty(PythonRuntime.storage.pyError.value).value;
-                let pyErrorType;
-                let pyErrorProto = RequireNotEmpty(PythonRuntime.storage.pyError.value).__proto__;
-                if (pyErrorProto == null || pyErrorProto == undefined ||
-                    pyErrorProto.constructor == null || pyErrorProto.constructor == undefined ||
-                    typeof pyErrorProto.constructor.name != "string") {
-                    pyErrorType = "UNKNOWN";
-                }
-                else {
-                    pyErrorType = pyErrorProto.constructor.name;
-                }
-                WorkerMessageChannel.postMessage({
-                    "messageType": WorkerMessageChannel.MessageType.W2M.Console.Stdout,
-                    "messageBody": StringFormat("An uncaught python exception encountered.\n" +
-                        "{}: In {}:{}#{}\n" +
-                        "[Finished in {} ms with code 0]", [pyErrorType, pyError.namespace, pyError.className, pyError.methodName.description == undefined ? "UNKNOWN" : pyError.methodName.description, time.toString()])
-                });
-                exitCallback(1);
+            if (!(error instanceof BytecodeRunnerPyErrorSignal)) {
+                throw error;
+            }
+            let pyError = RequireNotEmpty(PythonRuntime.storage.pyError.value).value;
+            let pyErrorType;
+            let pyErrorProto = RequireNotEmpty(PythonRuntime.storage.pyError.value).__proto__;
+            if (pyErrorProto == null || pyErrorProto == undefined ||
+                pyErrorProto.constructor == null || pyErrorProto.constructor == undefined ||
+                typeof pyErrorProto.constructor.name != "string") {
+                pyErrorType = "UNKNOWN";
             }
             else {
-                let place, msg;
-                if (error instanceof BytecodeRunnerFatalErrorSignal) {
-                    place = error.place;
-                    msg = error.msg;
-                }
-                else {
-                    place = "UNKNOWN";
-                    try {
-                        msg = JSON.stringify(error);
-                    }
-                    catch (ignore) {
-                        msg = "NULL";
-                    }
-                }
-                WorkerMessageChannel.postMessage({
-                    "messageType": WorkerMessageChannel.MessageType.W2M.Console.Stdout,
-                    "messageBody": StringFormat("# An fatal error encountered. Python Virtual Machine will shut down forcely.\n" +
-                        "# [{}]: {}\n" +
-                        "# Please report this bug to the developer.", [place, msg])
-                });
-                exitCallback(1);
+                pyErrorType = pyErrorProto.constructor.name;
+            }
+            WorkerApp.getInstance().postMessage({
+                "messageType": MessageType.W2M.Console.Stdout,
+                "messageBody": StringFormat("An uncaught python exception encountered.\n" +
+                    "{}: In {}:{}#{}\n", [pyErrorType, pyError.namespace, pyError.className, pyError.methodName.description == undefined ? "UNKNOWN" : pyError.methodName.description])
+            });
+        }
+        let time = Date.now() - startTime;
+        let returnValue = PythonRuntime.storage.varStack.pop();
+        let exitCode;
+        if (returnValue == null || returnValue == undefined || returnValue.type == PyObjectType.None) {
+            exitCode = 0;
+        }
+        else if (returnValue.type == PyObjectType.Int) {
+            exitCode = returnValue.value;
+        }
+        else {
+            exitCode = 0;
+        }
+        WorkerApp.getInstance().postMessage({
+            "messageType": MessageType.W2M.Console.Stdout,
+            "messageBody": StringFormat("[Finished in {} ms with code {}]", [time.toString(), exitCode.toString()])
+        });
+        WorkerApp.getInstance().exit(exitCode);
+    }).catch(error => {
+        console.error(error);
+        let place, msg;
+        if (error instanceof BytecodeRunnerFatalErrorSignal) {
+            place = error.place;
+            msg = error.msg;
+        }
+        else {
+            place = "UNKNOWN";
+            try {
+                msg = JSON.stringify(error);
+            }
+            catch (ignore) {
+                msg = "NULL";
             }
         }
-        if (success == true) {
-            let time = Date.now() - startTime;
-            let returnValue = PythonRuntime.storage.varStack.pop();
-            if (returnValue == null || returnValue == undefined || returnValue.type == PyObjectType.None) {
-                WorkerMessageChannel.postMessage({
-                    "messageType": WorkerMessageChannel.MessageType.W2M.Console.Stdout,
-                    "messageBody": StringFormat("[Finished in {} ms with code 0]", [time.toString()])
-                });
-                exitCallback(0);
-            }
-            else if (returnValue.type == PyObjectType.Int) {
-                WorkerMessageChannel.postMessage({
-                    "messageType": WorkerMessageChannel.MessageType.W2M.Console.Stdout,
-                    "messageBody": StringFormat("[Finished in {} ms with code {}]", [time.toString(), returnValue.value.toString()])
-                });
-                exitCallback(returnValue.value);
-            }
-            else {
-                WorkerMessageChannel.postMessage({
-                    "messageType": WorkerMessageChannel.MessageType.W2M.Console.Stdout,
-                    "messageBody": StringFormat("[Finished in {} ms with code 1]", [time.toString()])
-                });
-                exitCallback(0);
-            }
-        }
+        WorkerApp.getInstance().postMessage({
+            "messageType": MessageType.W2M.Console.Stdout,
+            "messageBody": StringFormat("# An fatal error encountered. Python Virtual Machine will shut down forcely.\n" +
+                "# [{}]: {}\n" +
+                "# Please report this bug to the developer.", [place, msg])
+        });
+        WorkerApp.getInstance().exit(1);
     });
-}, [800, 600]);
+}, [1000, 600]);
