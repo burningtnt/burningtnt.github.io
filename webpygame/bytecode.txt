@@ -46,7 +46,7 @@
              76 STORE_NAME              15 (STONE_SPACE)
 
  12          78 LOAD_BUILD_CLASS
-             80 LOAD_CONST               9 (<code object CLS_gunship at 0x032769C0, file "<dis>", line 12>)
+             80 LOAD_CONST               9 (<code object CLS_gunship at 0x03120E90, file "<dis>", line 12>)
              82 LOAD_CONST              10 ('CLS_gunship')
              84 MAKE_FUNCTION            0
              86 LOAD_CONST              10 ('CLS_gunship')
@@ -55,7 +55,7 @@
              92 STORE_NAME              17 (CLS_gunship)
 
  46          94 LOAD_BUILD_CLASS
-             96 LOAD_CONST              11 (<code object CLS_stone at 0x032760D0, file "<dis>", line 46>)
+             96 LOAD_CONST              11 (<code object CLS_stone at 0x0313A078, file "<dis>", line 46>)
              98 LOAD_CONST              12 ('CLS_stone')
             100 MAKE_FUNCTION            0
             102 LOAD_CONST              12 ('CLS_stone')
@@ -64,7 +64,7 @@
             108 STORE_NAME              18 (CLS_stone)
 
  59         110 LOAD_BUILD_CLASS
-            112 LOAD_CONST              13 (<code object CLS_framework at 0x03276AC8, file "<dis>", line 59>)
+            112 LOAD_CONST              13 (<code object CLS_framework at 0x0313A3E8, file "<dis>", line 59>)
             114 LOAD_CONST              14 ('CLS_framework')
             116 MAKE_FUNCTION            0
             118 LOAD_CONST              14 ('CLS_framework')
@@ -188,35 +188,35 @@
         >>  320 LOAD_CONST               1 (None)
             322 RETURN_VALUE
 
-Disassembly of <code object CLS_gunship at 0x032769C0, file "<dis>", line 12>:
+Disassembly of <code object CLS_gunship at 0x03120E90, file "<dis>", line 12>:
  12           0 LOAD_NAME                0 (__name__)
               2 STORE_NAME               1 (__module__)
               4 LOAD_CONST               0 ('CLS_gunship')
               6 STORE_NAME               2 (__qualname__)
 
- 13           8 LOAD_CONST               1 (<code object __init__ at 0x0325A4F0, file "<dis>", line 13>)
+ 13           8 LOAD_CONST               1 (<code object __init__ at 0x03120CD8, file "<dis>", line 13>)
              10 LOAD_CONST               2 ('CLS_gunship.__init__')
              12 MAKE_FUNCTION            0
              14 STORE_NAME               3 (__init__)
 
- 24          16 LOAD_CONST               3 (<code object move at 0x0325A498, file "<dis>", line 24>)
+ 24          16 LOAD_CONST               3 (<code object move at 0x03120D88, file "<dis>", line 24>)
              18 LOAD_CONST               4 ('CLS_gunship.move')
              20 MAKE_FUNCTION            0
              22 STORE_NAME               4 (move)
 
- 35          24 LOAD_CONST               5 (<code object draw at 0x0325AE90, file "<dis>", line 35>)
+ 35          24 LOAD_CONST               5 (<code object draw at 0x03120DE0, file "<dis>", line 35>)
              26 LOAD_CONST               6 ('CLS_gunship.draw')
              28 MAKE_FUNCTION            0
              30 STORE_NAME               5 (draw)
 
- 41          32 LOAD_CONST               7 (<code object quicker at 0x03276860, file "<dis>", line 41>)
+ 41          32 LOAD_CONST               7 (<code object quicker at 0x03120E38, file "<dis>", line 41>)
              34 LOAD_CONST               8 ('CLS_gunship.quicker')
              36 MAKE_FUNCTION            0
              38 STORE_NAME               6 (quicker)
              40 LOAD_CONST               9 (None)
              42 RETURN_VALUE
 
-Disassembly of <code object __init__ at 0x0325A4F0, file "<dis>", line 13>:
+Disassembly of <code object __init__ at 0x03120CD8, file "<dis>", line 13>:
  14           0 LOAD_GLOBAL              0 (pygame)
               2 LOAD_ATTR                1 (image)
               4 LOAD_METHOD              2 (load)
@@ -283,7 +283,7 @@ Disassembly of <code object __init__ at 0x0325A4F0, file "<dis>", line 13>:
             108 LOAD_CONST               0 (None)
             110 RETURN_VALUE
 
-Disassembly of <code object move at 0x0325A498, file "<dis>", line 24>:
+Disassembly of <code object move at 0x03120D88, file "<dis>", line 24>:
  25           0 LOAD_FAST                0 (self)
               2 DUP_TOP
               4 LOAD_ATTR                0 (spdY)
@@ -356,7 +356,7 @@ Disassembly of <code object move at 0x0325A498, file "<dis>", line 24>:
         >>  120 LOAD_CONST               0 (None)
             122 RETURN_VALUE
 
-Disassembly of <code object draw at 0x0325AE90, file "<dis>", line 35>:
+Disassembly of <code object draw at 0x03120DE0, file "<dis>", line 35>:
  36           0 LOAD_GLOBAL              0 (fwork)
               2 LOAD_ATTR                1 (status)
               4 LOAD_CONST               1 (1)
@@ -408,7 +408,7 @@ Disassembly of <code object draw at 0x0325AE90, file "<dis>", line 35>:
              88 LOAD_CONST               0 (None)
              90 RETURN_VALUE
 
-Disassembly of <code object quicker at 0x03276860, file "<dis>", line 41>:
+Disassembly of <code object quicker at 0x03120E38, file "<dis>", line 41>:
  42           0 LOAD_FAST                0 (self)
               2 DUP_TOP
               4 LOAD_ATTR                0 (counterTime)
@@ -438,30 +438,30 @@ Disassembly of <code object quicker at 0x03276860, file "<dis>", line 41>:
         >>   46 LOAD_CONST               0 (None)
              48 RETURN_VALUE
 
-Disassembly of <code object CLS_stone at 0x032760D0, file "<dis>", line 46>:
+Disassembly of <code object CLS_stone at 0x0313A078, file "<dis>", line 46>:
  46           0 LOAD_NAME                0 (__name__)
               2 STORE_NAME               1 (__module__)
               4 LOAD_CONST               0 ('CLS_stone')
               6 STORE_NAME               2 (__qualname__)
 
- 47           8 LOAD_CONST               1 (<code object __init__ at 0x03276C28, file "<dis>", line 47>)
+ 47           8 LOAD_CONST               1 (<code object __init__ at 0x03120F98, file "<dis>", line 47>)
              10 LOAD_CONST               2 ('CLS_stone.__init__')
              12 MAKE_FUNCTION            0
              14 STORE_NAME               3 (__init__)
 
- 55          16 LOAD_CONST               3 (<code object move at 0x03276808, file "<dis>", line 55>)
+ 55          16 LOAD_CONST               3 (<code object move at 0x03120EE8, file "<dis>", line 55>)
              18 LOAD_CONST               4 ('CLS_stone.move')
              20 MAKE_FUNCTION            0
              22 STORE_NAME               4 (move)
 
- 57          24 LOAD_CONST               5 (<code object draw at 0x03276A18, file "<dis>", line 57>)
+ 57          24 LOAD_CONST               5 (<code object draw at 0x0313A020, file "<dis>", line 57>)
              26 LOAD_CONST               6 ('CLS_stone.draw')
              28 MAKE_FUNCTION            0
              30 STORE_NAME               5 (draw)
              32 LOAD_CONST               7 (None)
              34 RETURN_VALUE
 
-Disassembly of <code object __init__ at 0x03276C28, file "<dis>", line 47>:
+Disassembly of <code object __init__ at 0x03120F98, file "<dis>", line 47>:
  48           0 LOAD_GLOBAL              0 (SCREEN_W)
               2 LOAD_GLOBAL              1 (STOWN_W)
               4 ROT_TWO
@@ -501,7 +501,7 @@ Disassembly of <code object __init__ at 0x03276C28, file "<dis>", line 47>:
         >>   62 LOAD_CONST               0 (None)
              64 RETURN_VALUE
 
-Disassembly of <code object move at 0x03276808, file "<dis>", line 55>:
+Disassembly of <code object move at 0x03120EE8, file "<dis>", line 55>:
  56           0 LOAD_FAST                0 (self)
               2 DUP_TOP
               4 LOAD_ATTR                0 (x)
@@ -513,7 +513,7 @@ Disassembly of <code object move at 0x03276808, file "<dis>", line 55>:
              16 LOAD_CONST               0 (None)
              18 RETURN_VALUE
 
-Disassembly of <code object draw at 0x03276A18, file "<dis>", line 57>:
+Disassembly of <code object draw at 0x0313A020, file "<dis>", line 57>:
  58           0 LOAD_GLOBAL              0 (pygame)
               2 LOAD_ATTR                1 (draw)
               4 LOAD_METHOD              2 (rect)
@@ -537,60 +537,60 @@ Disassembly of <code object draw at 0x03276A18, file "<dis>", line 57>:
              40 LOAD_CONST               0 (None)
              42 RETURN_VALUE
 
-Disassembly of <code object CLS_framework at 0x03276AC8, file "<dis>", line 59>:
+Disassembly of <code object CLS_framework at 0x0313A3E8, file "<dis>", line 59>:
  59           0 LOAD_NAME                0 (__name__)
               2 STORE_NAME               1 (__module__)
               4 LOAD_CONST               0 ('CLS_framework')
               6 STORE_NAME               2 (__qualname__)
 
- 60           8 LOAD_CONST               1 (<code object __init__ at 0x03276758, file "<dis>", line 60>)
+ 60           8 LOAD_CONST               1 (<code object __init__ at 0x0313A0D0, file "<dis>", line 60>)
              10 LOAD_CONST               2 ('CLS_framework.__init__')
              12 MAKE_FUNCTION            0
              14 STORE_NAME               3 (__init__)
 
- 79          16 LOAD_CONST               3 (<code object play at 0x03276C80, file "<dis>", line 79>)
+ 79          16 LOAD_CONST               3 (<code object play at 0x0313A128, file "<dis>", line 79>)
              18 LOAD_CONST               4 ('CLS_framework.play')
              20 MAKE_FUNCTION            0
              22 STORE_NAME               4 (play)
 
- 89          24 LOAD_CONST               5 (<code object draw_field at 0x03276DE0, file "<dis>", line 89>)
+ 89          24 LOAD_CONST               5 (<code object draw_field at 0x0313A180, file "<dis>", line 89>)
              26 LOAD_CONST               6 ('CLS_framework.draw_field')
              28 MAKE_FUNCTION            0
              30 STORE_NAME               5 (draw_field)
 
-101          32 LOAD_CONST               7 (<code object stone_do at 0x032763E8, file "<dis>", line 101>)
+101          32 LOAD_CONST               7 (<code object stone_do at 0x0313A1D8, file "<dis>", line 101>)
              34 LOAD_CONST               8 ('CLS_framework.stone_do')
              36 MAKE_FUNCTION            0
              38 STORE_NAME               6 (stone_do)
 
-117          40 LOAD_CONST               9 (<code object keydown at 0x03276E90, file "<dis>", line 117>)
+117          40 LOAD_CONST               9 (<code object keydown at 0x0313A230, file "<dis>", line 117>)
              42 LOAD_CONST              10 ('CLS_framework.keydown')
              44 MAKE_FUNCTION            0
              46 STORE_NAME               7 (keydown)
 
-123          48 LOAD_CONST              11 (<code object keyup at 0x03276180, file "<dis>", line 123>)
+123          48 LOAD_CONST              11 (<code object keyup at 0x0313A288, file "<dis>", line 123>)
              50 LOAD_CONST              12 ('CLS_framework.keyup')
              52 MAKE_FUNCTION            0
              54 STORE_NAME               8 (keyup)
 
-126          56 LOAD_CONST              13 (<code object mousebuttondown at 0x03276B78, file "<dis>", line 126>)
+126          56 LOAD_CONST              13 (<code object mousebuttondown at 0x0313A2E0, file "<dis>", line 126>)
              58 LOAD_CONST              14 ('CLS_framework.mousebuttondown')
              60 MAKE_FUNCTION            0
              62 STORE_NAME               9 (mousebuttondown)
 
-132          64 LOAD_CONST              15 (<code object mousebuttonup at 0x03276D88, file "<dis>", line 132>)
+132          64 LOAD_CONST              15 (<code object mousebuttonup at 0x0313A338, file "<dis>", line 132>)
              66 LOAD_CONST              16 ('CLS_framework.mousebuttonup')
              68 MAKE_FUNCTION            0
              70 STORE_NAME              10 (mousebuttonup)
 
-134          72 LOAD_CONST              17 (<code object write_score at 0x03276CD8, file "<dis>", line 134>)
+134          72 LOAD_CONST              17 (<code object write_score at 0x0313A390, file "<dis>", line 134>)
              74 LOAD_CONST              18 ('CLS_framework.write_score')
              76 MAKE_FUNCTION            0
              78 STORE_NAME              11 (write_score)
              80 LOAD_CONST              19 (None)
              82 RETURN_VALUE
 
-Disassembly of <code object __init__ at 0x03276758, file "<dis>", line 60>:
+Disassembly of <code object __init__ at 0x0313A0D0, file "<dis>", line 60>:
  61           0 LOAD_GLOBAL              0 (pygame)
               2 LOAD_METHOD              1 (init)
               4 CALL_METHOD              0
@@ -655,7 +655,7 @@ Disassembly of <code object __init__ at 0x03276758, file "<dis>", line 60>:
             104 LOAD_CONST               0 (None)
             106 RETURN_VALUE
 
-Disassembly of <code object play at 0x03276C80, file "<dis>", line 79>:
+Disassembly of <code object play at 0x0313A128, file "<dis>", line 79>:
  80           0 LOAD_FAST                0 (self)
               2 LOAD_ATTR                0 (status)
               4 LOAD_CONST               1 (1)
@@ -707,7 +707,7 @@ Disassembly of <code object play at 0x03276C80, file "<dis>", line 79>:
              80 LOAD_CONST               0 (None)
              82 RETURN_VALUE
 
-Disassembly of <code object draw_field at 0x03276DE0, file "<dis>", line 89>:
+Disassembly of <code object draw_field at 0x0313A180, file "<dis>", line 89>:
  90           0 LOAD_FAST                0 (self)
               2 LOAD_ATTR                0 (scr)
               4 LOAD_METHOD              1 (fill)
@@ -848,7 +848,7 @@ Disassembly of <code object draw_field at 0x03276DE0, file "<dis>", line 89>:
             254 LOAD_CONST               0 (None)
             256 RETURN_VALUE
 
-Disassembly of <code object stone_do at 0x032763E8, file "<dis>", line 101>:
+Disassembly of <code object stone_do at 0x0313A1D8, file "<dis>", line 101>:
 102           0 LOAD_CONST               1 (0)
               2 STORE_FAST               1 (lastStoneX)
 
@@ -976,7 +976,7 @@ Disassembly of <code object stone_do at 0x032763E8, file "<dis>", line 101>:
         >>  222 LOAD_CONST               0 (None)
             224 RETURN_VALUE
 
-Disassembly of <code object keydown at 0x03276E90, file "<dis>", line 117>:
+Disassembly of <code object keydown at 0x0313A230, file "<dis>", line 117>:
 118           0 LOAD_GLOBAL              0 (event)
               2 LOAD_ATTR                1 (key)
               4 LOAD_GLOBAL              2 (pygame)
@@ -1009,7 +1009,7 @@ Disassembly of <code object keydown at 0x03276E90, file "<dis>", line 117>:
         >>   50 LOAD_CONST               0 (None)
              52 RETURN_VALUE
 
-Disassembly of <code object keyup at 0x03276180, file "<dis>", line 123>:
+Disassembly of <code object keyup at 0x0313A288, file "<dis>", line 123>:
 124           0 LOAD_GLOBAL              0 (event)
               2 LOAD_ATTR                1 (key)
               4 LOAD_GLOBAL              2 (pygame)
@@ -1023,7 +1023,7 @@ Disassembly of <code object keyup at 0x03276180, file "<dis>", line 123>:
         >>   18 LOAD_CONST               0 (None)
              20 RETURN_VALUE
 
-Disassembly of <code object mousebuttondown at 0x03276B78, file "<dis>", line 126>:
+Disassembly of <code object mousebuttondown at 0x0313A2E0, file "<dis>", line 126>:
 127           0 LOAD_FAST                0 (self)
               2 LOAD_ATTR                0 (status)
               4 LOAD_CONST               1 (0)
@@ -1048,13 +1048,13 @@ Disassembly of <code object mousebuttondown at 0x03276B78, file "<dis>", line 12
         >>   36 LOAD_CONST               0 (None)
              38 RETURN_VALUE
 
-Disassembly of <code object mousebuttonup at 0x03276D88, file "<dis>", line 132>:
+Disassembly of <code object mousebuttonup at 0x0313A338, file "<dis>", line 132>:
 133           0 LOAD_CONST               1 (0)
               2 LOAD_GLOBAL              0 (z10)
               4 STORE_ATTR               1 (accY)
               6 LOAD_CONST               0 (None)
               8 RETURN_VALUE
 
-Disassembly of <code object write_score at 0x03276CD8, file "<dis>", line 134>:
+Disassembly of <code object write_score at 0x0313A390, file "<dis>", line 134>:
 135           0 LOAD_CONST               0 (None)
               2 RETURN_VALUE
