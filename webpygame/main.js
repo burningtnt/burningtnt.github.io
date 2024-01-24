@@ -30,10 +30,10 @@ var StringFormat = function (instance, args) {
     return result;
 };
 var RequireNotEmpty = function (instance) {
-    if (instance == undefined) {
+    if (instance === undefined) {
         throw new TypeError("Instance is undefined.");
     }
-    if (instance == null) {
+    if (instance === null) {
         throw new TypeError("Instance is null.");
     }
     return instance;
@@ -387,15 +387,6 @@ class App {
         if (this.messagePosterDelegate != null) {
             this.messagePosterDelegate();
         }
-    }
-    getConsoleRenderer() {
-        return this.consoleRenderer;
-    }
-    getConsoleCanvas() {
-        return this.consoleCanvas;
-    }
-    getUICanvas() {
-        return this.uiCanvas;
     }
 }
 var WebPygame = new App(RequireNotEmpty(document.getElementById("consoleCanvas")), RequireNotEmpty(document.getElementById("guiCanvas")), () => new Worker("worker.js"), false);
