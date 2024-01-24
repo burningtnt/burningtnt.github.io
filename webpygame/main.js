@@ -192,188 +192,195 @@ class App {
             }
         }
     }
-    haslaunched() {
+    isLaunched() {
         return this.launched;
     }
-    launch(onError) {
+    launch() {
+        var _a;
         this.launched = true;
         if (SharedArrayBuffer == undefined) {
-            onError("NO_SHARED_ARRAY_BUFFER");
-            return;
+            return Promise.reject("NO_SHARED_ARRAY_BUFFER");
         }
-        if (HTMLCanvasElement.prototype.transferControlToOffscreen == undefined || OffscreenCanvasRenderingContext2D.prototype.commit == undefined) {
-            if (ImageBitmapRenderingContext == undefined || ImageBitmapRenderingContext.prototype.transferFromImageBitmap == undefined) {
-                onError("NO_COMMIT_API");
-                return;
+        if (HTMLCanvasElement.prototype.transferControlToOffscreen == undefined || ((_a = OffscreenCanvasRenderingContext2D === null || OffscreenCanvasRenderingContext2D === void 0 ? void 0 : OffscreenCanvasRenderingContext2D.prototype) === null || _a === void 0 ? void 0 : _a.commit) == undefined) {
+            if ((ImageBitmapRenderingContext === null || ImageBitmapRenderingContext === void 0 ? void 0 : ImageBitmapRenderingContext.prototype.transferFromImageBitmap) == undefined) {
+                return Promise.reject("NO_COMMIT_API");
             }
+        }
+        if (navigator.serviceWorker == undefined) {
+            return Promise.reject("NO_SERVICE_WORKER");
         }
         if (!this.showConsole) {
             this.consoleCanvas.style.display = "none";
             this.uiCanvas.requestFullscreen({ "navigationUI": "hide" });
         }
-        let sharedBuffer = new SharedArrayBuffer(1027);
-        let uint8Array = new Uint8Array(sharedBuffer);
-        let textEncoder = new TextEncoder();
-        let textEncoderBuffer = new Uint8Array(1024);
-        let dataview = new DataView(sharedBuffer);
-        let worker = this.workerProvider();
-        worker.onmessage = (ev) => {
-            if (ev.data.messageType != MessageType.W2M.LifeCycle.RequestInitMessageChannel) {
-                return;
-            }
-            this.uiCanvas.width = ev.data.messageBody[0];
-            this.uiCanvas.height = ev.data.messageBody[1];
-            Atomics.store(uint8Array, 0, MessageType.STATUS.MAIN_ACCESS);
+        return navigator.serviceWorker.register("serviceworker.js", {
+            "scope": "./"
+        }).then(() => new Promise((resolve) => {
+            let sharedBuffer = new SharedArrayBuffer(1027);
+            let uint8Array = new Uint8Array(sharedBuffer);
+            let textEncoder = new TextEncoder();
+            let textEncoderBuffer = new Uint8Array(1024);
+            let dataview = new DataView(sharedBuffer);
+            let worker = this.workerProvider();
             worker.onmessage = (ev) => {
-                if (ev.data.messageType !== MessageType.W2M.LifeCycle.ConnectionOK) {
+                if (ev.data.messageType != MessageType.W2M.LifeCycle.RequestInitMessageChannel) {
                     return;
                 }
-                this.messagePosterDelegate = () => {
-                    if (Atomics.load(uint8Array, 0) != MessageType.STATUS.MAIN_ACCESS) {
+                this.uiCanvas.width = ev.data.messageBody[0];
+                this.uiCanvas.height = ev.data.messageBody[1];
+                Atomics.store(uint8Array, 0, MessageType.STATUS.MAIN_ACCESS);
+                worker.onmessage = (ev) => {
+                    if (ev.data.messageType !== MessageType.W2M.LifeCycle.ConnectionOK) {
                         return;
                     }
-                    let messages = this.messageCache.readAll();
-                    if (messages.length == 0) {
-                        return;
-                    }
-                    for (let i = messages.length; i >= 0; i--) {
-                        let jsonString = JSON.stringify(messages.slice(0, i));
-                        let encodeResult = textEncoder.encodeInto(jsonString, textEncoderBuffer);
-                        if (encodeResult.read != undefined) {
-                            if (encodeResult.read !== jsonString.length) {
-                                continue;
-                            }
+                    this.messagePosterDelegate = () => {
+                        if (Atomics.load(uint8Array, 0) != MessageType.STATUS.MAIN_ACCESS) {
+                            return;
                         }
-                        if (encodeResult.written != undefined) {
-                            dataview.setUint16(1, encodeResult.written, true);
+                        let messages = this.messageCache.readAll();
+                        if (messages.length == 0) {
+                            return;
+                        }
+                        for (let i = messages.length; i >= 0; i--) {
+                            let jsonString = JSON.stringify(messages.slice(0, i));
+                            let encodeResult = textEncoder.encodeInto(jsonString, textEncoderBuffer);
+                            if (encodeResult.read != undefined) {
+                                if (encodeResult.read !== jsonString.length) {
+                                    continue;
+                                }
+                            }
+                            if (encodeResult.written != undefined) {
+                                dataview.setUint16(1, encodeResult.written, true);
+                            }
+                            else {
+                                textEncoderBuffer.fill(32, encodeResult.written);
+                                dataview.setUint16(1, textEncoderBuffer.byteLength, true);
+                            }
+                            uint8Array.set(textEncoderBuffer, 3);
+                            for (let j = i; j < messages.length; j++) {
+                                if (messages[j] != null) {
+                                    this.messageCache.push(messages[j]);
+                                }
+                            }
+                            break;
+                        }
+                        Atomics.store(uint8Array, 0, MessageType.STATUS.WORKER_ACCESS);
+                    };
+                    worker.onmessage = (ev) => {
+                        this.runtimeOnMessageHandler(ev.data);
+                    };
+                    document.documentElement.addEventListener("keydown", (ev) => {
+                        ev.preventDefault();
+                        this.postMessage({
+                            "messageType": MessageType.M2W.Keyboard.KeyDown,
+                            "messageBody": {
+                                "ctrlDown": ev.ctrlKey || ev.metaKey,
+                                "altDown": ev.altKey,
+                                "shiftDown": ev.shiftKey,
+                                "key": ev.key
+                            }
+                        });
+                    });
+                    document.documentElement.addEventListener("keyup", (ev) => {
+                        ev.preventDefault();
+                        this.postMessage({
+                            "messageType": MessageType.M2W.Keyboard.KeyUp,
+                            "messageBody": {
+                                "ctrlDown": ev.ctrlKey || ev.metaKey,
+                                "altDown": ev.altKey,
+                                "shiftDown": ev.shiftKey,
+                                "key": ev.key
+                            }
+                        });
+                    });
+                    this.uiCanvas.addEventListener("mousedown", (ev) => {
+                        ev.preventDefault();
+                        if (document.fullscreenElement == this.uiCanvas) {
+                            this.postMessage({
+                                "messageType": MessageType.M2W.Mouse.MouseDown,
+                                "messageBody": {
+                                    "pos": [ev.offsetX / document.documentElement.clientWidth * this.uiCanvas.width, ev.offsetY / document.documentElement.clientHeight * this.uiCanvas.height]
+                                }
+                            });
                         }
                         else {
-                            textEncoderBuffer.fill(32, encodeResult.written);
-                            dataview.setUint16(1, textEncoderBuffer.byteLength, true);
-                        }
-                        uint8Array.set(textEncoderBuffer, 3);
-                        for (let j = i; j < messages.length; j++) {
-                            if (messages[j] != null) {
-                                this.messageCache.push(messages[j]);
-                            }
-                        }
-                        break;
-                    }
-                    Atomics.store(uint8Array, 0, MessageType.STATUS.WORKER_ACCESS);
-                };
-                worker.onmessage = (ev) => {
-                    this.runtimeOnMessageHandler(ev.data);
-                };
-                document.documentElement.addEventListener("keydown", (ev) => {
-                    ev.preventDefault();
-                    this.postMessage({
-                        "messageType": MessageType.M2W.Keyboard.KeyDown,
-                        "messageBody": {
-                            "ctrlDown": ev.ctrlKey || ev.metaKey,
-                            "altDown": ev.altKey,
-                            "shiftDown": ev.shiftKey,
-                            "key": ev.key
+                            this.postMessage({
+                                "messageType": MessageType.M2W.Mouse.MouseDown,
+                                "messageBody": {
+                                    "pos": [ev.offsetX, ev.offsetY]
+                                }
+                            });
                         }
                     });
-                });
-                document.documentElement.addEventListener("keyup", (ev) => {
-                    ev.preventDefault();
-                    this.postMessage({
-                        "messageType": MessageType.M2W.Keyboard.KeyUp,
-                        "messageBody": {
-                            "ctrlDown": ev.ctrlKey || ev.metaKey,
-                            "altDown": ev.altKey,
-                            "shiftDown": ev.shiftKey,
-                            "key": ev.key
+                    this.uiCanvas.addEventListener("mouseup", (ev) => {
+                        ev.preventDefault();
+                        if (document.fullscreenElement == this.uiCanvas) {
+                            this.postMessage({
+                                "messageType": MessageType.M2W.Mouse.MouseUp,
+                                "messageBody": {
+                                    "pos": [ev.offsetX / document.documentElement.clientWidth * this.uiCanvas.width, ev.offsetY / document.documentElement.clientHeight * this.uiCanvas.height]
+                                }
+                            });
+                        }
+                        else {
+                            this.postMessage({
+                                "messageType": MessageType.M2W.Mouse.MouseUp,
+                                "messageBody": {
+                                    "pos": [ev.offsetX, ev.offsetY]
+                                }
+                            });
                         }
                     });
-                });
-                this.uiCanvas.addEventListener("mousedown", (ev) => {
-                    ev.preventDefault();
-                    if (document.fullscreenElement == this.uiCanvas) {
-                        this.postMessage({
-                            "messageType": MessageType.M2W.Mouse.MouseDown,
-                            "messageBody": {
-                                "pos": [ev.offsetX / document.documentElement.clientWidth * this.uiCanvas.width, ev.offsetY / document.documentElement.clientHeight * this.uiCanvas.height]
-                            }
-                        });
-                    }
-                    else {
-                        this.postMessage({
-                            "messageType": MessageType.M2W.Mouse.MouseDown,
-                            "messageBody": {
-                                "pos": [ev.offsetX, ev.offsetY]
-                            }
-                        });
-                    }
-                });
-                this.uiCanvas.addEventListener("mouseup", (ev) => {
-                    ev.preventDefault();
-                    if (document.fullscreenElement == this.uiCanvas) {
+                    this.uiCanvas.addEventListener("touchstart", (ev) => {
+                        ev.preventDefault();
+                        if (document.fullscreenElement == this.uiCanvas) {
+                            this.postMessage({
+                                "messageType": MessageType.M2W.Mouse.MouseDown,
+                                "messageBody": {
+                                    "pos": [ev.touches[0].clientX / document.documentElement.clientWidth * this.uiCanvas.width, ev.touches[0].clientY / document.documentElement.clientHeight * this.uiCanvas.height]
+                                }
+                            });
+                        }
+                        else {
+                            this.postMessage({
+                                "messageType": MessageType.M2W.Mouse.MouseDown,
+                                "messageBody": {
+                                    "pos": [ev.touches[0].clientX, ev.touches[0].clientY]
+                                }
+                            });
+                        }
+                    });
+                    this.uiCanvas.addEventListener("touchend", (ev) => {
+                        ev.preventDefault();
                         this.postMessage({
                             "messageType": MessageType.M2W.Mouse.MouseUp,
-                            "messageBody": {
-                                "pos": [ev.offsetX / document.documentElement.clientWidth * this.uiCanvas.width, ev.offsetY / document.documentElement.clientHeight * this.uiCanvas.height]
-                            }
+                            "messageBody": null
                         });
-                    }
-                    else {
-                        this.postMessage({
-                            "messageType": MessageType.M2W.Mouse.MouseUp,
-                            "messageBody": {
-                                "pos": [ev.offsetX, ev.offsetY]
-                            }
-                        });
-                    }
-                });
-                this.uiCanvas.addEventListener("touchstart", (ev) => {
-                    ev.preventDefault();
-                    if (document.fullscreenElement == this.uiCanvas) {
-                        this.postMessage({
-                            "messageType": MessageType.M2W.Mouse.MouseDown,
-                            "messageBody": {
-                                "pos": [ev.touches[0].clientX / document.documentElement.clientWidth * this.uiCanvas.width, ev.touches[0].clientY / document.documentElement.clientHeight * this.uiCanvas.height]
-                            }
-                        });
-                    }
-                    else {
-                        this.postMessage({
-                            "messageType": MessageType.M2W.Mouse.MouseDown,
-                            "messageBody": {
-                                "pos": [ev.touches[0].clientX, ev.touches[0].clientY]
-                            }
-                        });
-                    }
-                });
-                this.uiCanvas.addEventListener("touchend", (ev) => {
-                    ev.preventDefault();
-                    this.postMessage({
-                        "messageType": MessageType.M2W.Mouse.MouseUp,
-                        "messageBody": null
                     });
-                });
+                    resolve();
+                };
+                if (this.uiCanvas.transferControlToOffscreen == undefined || OffscreenCanvasRenderingContext2D.prototype.commit == undefined) {
+                    this.uiCanvasBitMapRenderer = this.uiCanvas.getContext("bitmaprenderer");
+                    worker.postMessage({
+                        "messageType": MessageType.M2W.LifeCycle.InitMessageChannel,
+                        "messageBody": {
+                            "sharedBuffer": sharedBuffer,
+                            "canvas": null
+                        }
+                    });
+                }
+                else {
+                    let offscreenCanvas = this.uiCanvas.transferControlToOffscreen();
+                    worker.postMessage({
+                        "messageType": MessageType.M2W.LifeCycle.InitMessageChannel,
+                        "messageBody": {
+                            "sharedBuffer": sharedBuffer,
+                            "canvas": offscreenCanvas
+                        }
+                    }, [offscreenCanvas]);
+                }
             };
-            if (this.uiCanvas.transferControlToOffscreen == undefined || OffscreenCanvasRenderingContext2D.prototype.commit == undefined) {
-                this.uiCanvasBitMapRenderer = this.uiCanvas.getContext("bitmaprenderer");
-                worker.postMessage({
-                    "messageType": MessageType.M2W.LifeCycle.InitMessageChannel,
-                    "messageBody": {
-                        "sharedBuffer": sharedBuffer,
-                        "canvas": null
-                    }
-                });
-            }
-            else {
-                let offscreenCanvas = this.uiCanvas.transferControlToOffscreen();
-                worker.postMessage({
-                    "messageType": MessageType.M2W.LifeCycle.InitMessageChannel,
-                    "messageBody": {
-                        "sharedBuffer": sharedBuffer,
-                        "canvas": offscreenCanvas
-                    }
-                }, [offscreenCanvas]);
-            }
-        };
+        }));
     }
     postMessage(message) {
         this.messageCache.push(message);
@@ -393,12 +400,12 @@ class App {
 }
 var WebPygame = new App(RequireNotEmpty(document.getElementById("consoleCanvas")), RequireNotEmpty(document.getElementById("guiCanvas")), () => new Worker("worker.js"), false);
 document.documentElement.addEventListener("mousedown", () => {
-    if (!WebPygame.haslaunched()) {
-        WebPygame.launch((errorType) => alert("Unsupported browser! Error Message: " + errorType));
+    if (!WebPygame.isLaunched()) {
+        WebPygame.launch().catch((errorType) => alert("Unsupported browser! Error Message: " + errorType));
     }
 });
 document.documentElement.addEventListener("touchstart", () => {
-    if (!WebPygame.haslaunched()) {
-        WebPygame.launch((errorType) => alert("Unsupported browser! Error Message: " + errorType));
+    if (!WebPygame.isLaunched()) {
+        WebPygame.launch().catch((errorType) => alert("Unsupported browser! Error Message: " + errorType));
     }
 });

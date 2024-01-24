@@ -112,84 +112,86 @@ class AppWorker {
     getMessage() {
         return this.getMessageDelegate();
     }
-    launch(mainAction, screenSize) {
-        const currentAPP = this;
-        GlobalThis.onmessage = function (ev) {
-            if (ev.data.messageType !== MessageType.M2W.LifeCycle.InitMessageChannel) {
-                return;
-            }
-            if (ev.data.messageBody === null || ev.data.messageBody === undefined) {
-                return;
-            }
-            let messageBody = ev.data.messageBody;
-            if (messageBody.canvas == null) {
-                currentAPP.canvas = new OffscreenCanvas(screenSize[0], screenSize[1]);
-                currentAPP.canvas2DContext = RequireNotEmpty(currentAPP.canvas.getContext("2d"));
-                currentAPP.commitUIDelegate = () => {
-                    let bitmap = RequireNotEmpty(currentAPP.canvas).transferToImageBitmap();
-                    currentAPP.postMessage({
-                        "messageType": MessageType.W2M.GUI.RenderBitMap,
-                        "messageBody": bitmap
-                    }, [bitmap]);
-                };
-            }
-            else {
-                currentAPP.canvas = messageBody.canvas;
-                currentAPP.canvas2DContext = RequireNotEmpty(currentAPP.canvas.getContext("2d"));
-                currentAPP.commitUIDelegate = () => {
-                    RequireNotEmpty(currentAPP.canvas2DContext).commit();
-                };
-            }
-            GlobalThis.onmessage = null;
-            if (messageBody.sharedBuffer.byteLength != 1027) {
-                return;
-            }
-            let uint8Array = new Uint8Array(messageBody.sharedBuffer);
-            let textDecoder = new TextDecoder("utf-8");
-            let dataView = new DataView(messageBody.sharedBuffer);
-            currentAPP.pumpMessagesDelegate = () => {
-                if (Atomics.load(uint8Array, 0) != MessageType.STATUS.WORKER_ACCESS) {
+    launch(screenSize) {
+        return new Promise((resolve) => {
+            const currentAPP = this;
+            GlobalThis.onmessage = function (ev) {
+                if (ev.data.messageType !== MessageType.M2W.LifeCycle.InitMessageChannel) {
                     return;
                 }
+                if (ev.data.messageBody === null || ev.data.messageBody === undefined) {
+                    return;
+                }
+                let messageBody = ev.data.messageBody;
+                if (messageBody.canvas == null) {
+                    currentAPP.canvas = new OffscreenCanvas(screenSize[0], screenSize[1]);
+                    currentAPP.canvas2DContext = RequireNotEmpty(currentAPP.canvas.getContext("2d"));
+                    currentAPP.commitUIDelegate = () => {
+                        let bitmap = RequireNotEmpty(currentAPP.canvas).transferToImageBitmap();
+                        currentAPP.postMessage({
+                            "messageType": MessageType.W2M.GUI.RenderBitMap,
+                            "messageBody": bitmap
+                        }, [bitmap]);
+                    };
+                }
                 else {
-                    let messages = JSON.parse(textDecoder.decode(uint8Array.slice(3, dataView.getUint16(1, true) + 3)));
-                    Atomics.store(uint8Array, 0, MessageType.STATUS.MAIN_ACCESS);
-                    currentAPP.postMessage({
-                        "messageType": MessageType.W2M.LifeCycle.MessagePumped,
-                        "messageBody": null
-                    });
-                    for (let i = 0; i < messages.length; i++) {
-                        currentAPP.messageCache.push(messages[i]);
+                    currentAPP.canvas = messageBody.canvas;
+                    currentAPP.canvas2DContext = RequireNotEmpty(currentAPP.canvas.getContext("2d"));
+                    currentAPP.commitUIDelegate = () => {
+                        RequireNotEmpty(currentAPP.canvas2DContext).commit();
+                    };
+                }
+                GlobalThis.onmessage = null;
+                if (messageBody.sharedBuffer.byteLength != 1027) {
+                    return;
+                }
+                let uint8Array = new Uint8Array(messageBody.sharedBuffer);
+                let textDecoder = new TextDecoder("utf-8");
+                let dataView = new DataView(messageBody.sharedBuffer);
+                currentAPP.pumpMessagesDelegate = () => {
+                    if (Atomics.load(uint8Array, 0) != MessageType.STATUS.WORKER_ACCESS) {
+                        return;
                     }
-                }
+                    else {
+                        let messages = JSON.parse(textDecoder.decode(uint8Array.slice(3, dataView.getUint16(1, true) + 3)));
+                        Atomics.store(uint8Array, 0, MessageType.STATUS.MAIN_ACCESS);
+                        currentAPP.postMessage({
+                            "messageType": MessageType.W2M.LifeCycle.MessagePumped,
+                            "messageBody": null
+                        });
+                        for (let i = 0; i < messages.length; i++) {
+                            currentAPP.messageCache.push(messages[i]);
+                        }
+                    }
+                };
+                currentAPP.postMessageDelegate = (message, transfer) => {
+                    if (transfer == undefined) {
+                        GlobalThis.postMessage(message);
+                    }
+                    else {
+                        GlobalThis.postMessage(message, transfer);
+                    }
+                };
+                currentAPP.getMessageDelegate = () => {
+                    currentAPP.pumpMessages();
+                    let message = currentAPP.messageCache.shift();
+                    if (message == undefined) {
+                        return null;
+                    }
+                    else {
+                        return message;
+                    }
+                };
+                currentAPP.postMessage({
+                    "messageType": MessageType.W2M.LifeCycle.ConnectionOK,
+                    "messageBody": null
+                });
+                resolve();
             };
-            currentAPP.postMessageDelegate = (message, transfer) => {
-                if (transfer == undefined) {
-                    GlobalThis.postMessage(message);
-                }
-                else {
-                    GlobalThis.postMessage(message, transfer);
-                }
-            };
-            currentAPP.getMessageDelegate = () => {
-                currentAPP.pumpMessages();
-                let message = currentAPP.messageCache.shift();
-                if (message == undefined) {
-                    return null;
-                }
-                else {
-                    return message;
-                }
-            };
-            currentAPP.postMessage({
-                "messageType": MessageType.W2M.LifeCycle.ConnectionOK,
-                "messageBody": null
+            GlobalThis.postMessage({
+                "messageType": MessageType.W2M.LifeCycle.RequestInitMessageChannel,
+                "messageBody": screenSize
             });
-            mainAction();
-        };
-        GlobalThis.postMessage({
-            "messageType": MessageType.W2M.LifeCycle.RequestInitMessageChannel,
-            "messageBody": screenSize
         });
     }
     exit(exitCode) {
@@ -2223,141 +2225,134 @@ PythonRuntime = {
 };
 (async () => {
     PythonConfiguration = await (await fetch("configuration.json")).json();
-})().then(async () => {
-    await new Promise((resolve, reject) => {
-        AppWorker.getInstance().launch(() => {
-            (async () => {
-                PythonPacakgeHelper.loadPackages(PythonConfiguration.requiredPackages);
-                await PythonPacakgeHelper.park();
-            })().then(() => {
-                PythonRuntime.storage.newStack(0);
-                for (let codeObjectIndex = 0; codeObjectIndex < PythonConfiguration.codeObjectList.length; codeObjectIndex++) {
-                    for (let constIndex = 0; constIndex < PythonConfiguration.codeObjectList[codeObjectIndex].constList.length; constIndex++) {
-                        let constValue = PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].value;
-                        switch (PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].type) {
-                            case 'Number': {
-                                if (typeof constValue !== "number") {
-                                    throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Number.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
-                                }
-                                PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectInt(constValue);
-                                break;
-                            }
-                            case 'String': {
-                                if (typeof constValue !== "string") {
-                                    throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.String.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
-                                }
-                                PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectString(constValue);
-                                break;
-                            }
-                            case 'Bool': {
-                                if (typeof constValue !== "number") {
-                                    throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Bool.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
-                                }
-                                PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectBool(constValue === 1);
-                                break;
-                            }
-                            case 'None': {
-                                PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectNone();
-                                break;
-                            }
-                            case 'Code': {
-                                if (typeof constValue !== "number") {
-                                    throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Code.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
-                                }
-                                PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectCode(constValue);
-                                break;
-                            }
-                            case 'Tuple': {
-                                let decoder = function (_list) {
-                                    if (typeof (_list) == 'number') {
-                                        PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectInt(_list));
-                                    }
-                                    else if (Array.isArray(_list)) {
-                                        for (let i = 0; i < _list.length; i++) {
-                                            decoder(_list[i]);
-                                        }
-                                        PythonRuntime.storage.varStack.push(new PyObjectTuple(_list.length));
-                                    }
-                                    else {
-                                        throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Tuple.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof _list, constIndex.toString(), codeObjectIndex.toString()]));
-                                    }
-                                };
-                                decoder(PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].value);
-                                PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
-                                break;
-                            }
-                            default: {
-                                throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.UnknownType", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].type, constIndex.toString(), codeObjectIndex.toString()]));
-                            }
+})().then(() => AppWorker.getInstance().launch(PythonConfiguration.screenSize)).then(() => {
+    PythonPacakgeHelper.loadPackages(PythonConfiguration.requiredPackages);
+    return PythonPacakgeHelper.park();
+}).then(() => {
+    PythonRuntime.storage.newStack(0);
+    for (let codeObjectIndex = 0; codeObjectIndex < PythonConfiguration.codeObjectList.length; codeObjectIndex++) {
+        for (let constIndex = 0; constIndex < PythonConfiguration.codeObjectList[codeObjectIndex].constList.length; constIndex++) {
+            let constValue = PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].value;
+            switch (PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].type) {
+                case 'Number': {
+                    if (typeof constValue !== "number") {
+                        throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Number.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
+                    }
+                    PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectInt(constValue);
+                    break;
+                }
+                case 'String': {
+                    if (typeof constValue !== "string") {
+                        throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.String.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
+                    }
+                    PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectString(constValue);
+                    break;
+                }
+                case 'Bool': {
+                    if (typeof constValue !== "number") {
+                        throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Bool.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
+                    }
+                    PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectBool(constValue === 1);
+                    break;
+                }
+                case 'None': {
+                    PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectNone();
+                    break;
+                }
+                case 'Code': {
+                    if (typeof constValue !== "number") {
+                        throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Code.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof constValue, constIndex.toString(), codeObjectIndex.toString()]));
+                    }
+                    PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = PyObjectFactory.constructPyObjectCode(constValue);
+                    break;
+                }
+                case 'Tuple': {
+                    let decoder = function (_list) {
+                        if (typeof (_list) == 'number') {
+                            PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectInt(_list));
                         }
-                    }
+                        else if (Array.isArray(_list)) {
+                            for (let i = 0; i < _list.length; i++) {
+                                decoder(_list[i]);
+                            }
+                            PythonRuntime.storage.varStack.push(new PyObjectTuple(_list.length));
+                        }
+                        else {
+                            throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.Tuple.IllegalData", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof _list, constIndex.toString(), codeObjectIndex.toString()]));
+                        }
+                    };
+                    decoder(PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].value);
+                    PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex] = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
+                    break;
                 }
-                let startTime = performance.now();
-                try {
-                    PythonRuntime.runCodeObject(0, 0, 0);
+                default: {
+                    throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Constants.UnknownType", StringFormat("Unknown data type {} in constant #{} in code #{}.", [typeof PythonConfiguration.codeObjectList[codeObjectIndex].constList[constIndex].type, constIndex.toString(), codeObjectIndex.toString()]));
                 }
-                catch (error) {
-                    if (!(error instanceof BytecodeRunnerPyErrorSignal)) {
-                        throw error;
-                    }
-                    let pyError = RequireNotEmpty(PythonRuntime.storage.pyError.value).value;
-                    let pyErrorType;
-                    let pyErrorProto = RequireNotEmpty(PythonRuntime.storage.pyError.value).__proto__;
-                    if (typeof pyErrorProto?.constructor?.name != "string") {
-                        pyErrorType = "UNKNOWN";
-                    }
-                    else {
-                        pyErrorType = pyErrorProto.constructor.name;
-                    }
-                    AppWorker.getInstance().postMessage({
-                        "messageType": MessageType.W2M.Console.Stdout,
-                        "messageBody": StringFormat("An uncaught python exception encountered.\n" +
-                            "{}: In {}:{}#{}\n", [pyErrorType, pyError.namespace, pyError.className, pyError.methodName.description == undefined ? "UNKNOWN" : pyError.methodName.description])
-                    });
-                }
-                let time = performance.now() - startTime;
-                let returnValue = PythonRuntime.storage.varStack.pop();
-                let exitCode;
-                if (returnValue == null || returnValue.type == PyObjectType.None) {
-                    exitCode = 0;
-                }
-                else if (returnValue.type == PyObjectType.Int) {
-                    exitCode = returnValue.value;
-                }
-                else {
-                    exitCode = 0;
-                }
-                AppWorker.getInstance().postMessage({
-                    "messageType": MessageType.W2M.Console.Stdout,
-                    "messageBody": StringFormat("[Finished in {} ms with code {}]", [time.toString(), exitCode.toString()])
-                });
-                AppWorker.getInstance().exit(exitCode);
-                resolve(exitCode);
-            }).catch(error => {
-                console.error(error);
-                let place, msg;
-                if (error instanceof BytecodeRunnerFatalErrorSignal) {
-                    place = error.place;
-                    msg = error.msg;
-                }
-                else {
-                    place = "UNKNOWN";
-                    try {
-                        msg = JSON.stringify(error);
-                    }
-                    catch (ignore) {
-                        msg = "NULL";
-                    }
-                }
-                AppWorker.getInstance().postMessage({
-                    "messageType": MessageType.W2M.Console.Stdout,
-                    "messageBody": StringFormat("# An fatal error encountered. WebPython Virtual Machine will shut down forcely.\n" +
-                        "# [{}]: {}\n" +
-                        "# Please check your usage of webpygame.unsafe package, and consider reporting this bug to the developers of WebPygame.", [place, msg])
-                });
-                AppWorker.getInstance().exit(1);
-                reject(error);
-            });
-        }, PythonConfiguration.screenSize);
+            }
+        }
+    }
+    let startTime = performance.now();
+    try {
+        PythonRuntime.runCodeObject(0, 0, 0);
+    }
+    catch (error) {
+        if (!(error instanceof BytecodeRunnerPyErrorSignal)) {
+            throw error;
+        }
+        let pyError = RequireNotEmpty(PythonRuntime.storage.pyError.value).value;
+        let pyErrorType;
+        let pyErrorProto = RequireNotEmpty(PythonRuntime.storage.pyError.value).__proto__;
+        if (typeof pyErrorProto?.constructor?.name != "string") {
+            pyErrorType = "UNKNOWN";
+        }
+        else {
+            pyErrorType = pyErrorProto.constructor.name;
+        }
+        AppWorker.getInstance().postMessage({
+            "messageType": MessageType.W2M.Console.Stdout,
+            "messageBody": StringFormat("An uncaught python exception encountered.\n" +
+                "{}: In {}:{}#{}\n", [pyErrorType, pyError.namespace, pyError.className, pyError.methodName.description == undefined ? "UNKNOWN" : pyError.methodName.description])
+        });
+    }
+    let time = performance.now() - startTime;
+    let returnValue = PythonRuntime.storage.varStack.pop();
+    let exitCode;
+    if (returnValue == null || returnValue.type == PyObjectType.None) {
+        exitCode = 0;
+    }
+    else if (returnValue.type == PyObjectType.Int) {
+        exitCode = returnValue.value;
+    }
+    else {
+        exitCode = 0;
+    }
+    AppWorker.getInstance().postMessage({
+        "messageType": MessageType.W2M.Console.Stdout,
+        "messageBody": StringFormat("[Finished in {} ms with code {}]", [time.toString(), exitCode.toString()])
     });
+    AppWorker.getInstance().exit(exitCode);
+    return exitCode;
+}).catch(error => {
+    console.error(error);
+    let place, msg;
+    if (error instanceof BytecodeRunnerFatalErrorSignal) {
+        place = error.place;
+        msg = error.msg;
+    }
+    else {
+        place = "UNKNOWN";
+        try {
+            msg = JSON.stringify(error);
+        }
+        catch (ignore) {
+            msg = "NULL";
+        }
+    }
+    AppWorker.getInstance().postMessage({
+        "messageType": MessageType.W2M.Console.Stdout,
+        "messageBody": StringFormat("# An fatal error encountered. WebPython Virtual Machine will shut down forcely.\n" +
+            "# [{}]: {}\n" +
+            "# Please check your usage of webpygame.unsafe package, and consider reporting this bug to the developers of WebPygame.", [place, msg])
+    });
+    AppWorker.getInstance().exit(1);
 });
