@@ -1,13 +1,5 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var StringFormat = function (instance, args) {
+const StringFormat = function (instance, args) {
     let result = '', formatI = 0;
     for (let i = 0; i < instance.length; i++) {
         if (instance[i] !== '{' && instance[i] !== '}') {
@@ -37,17 +29,17 @@ var StringFormat = function (instance, args) {
     }
     return result;
 };
-var RequireNotEmpty = function (instance) {
-    if (instance == undefined) {
+const RequireNotEmpty = function (instance) {
+    if (instance === undefined) {
         throw new BytecodeRunnerFatalErrorSignal("RequireNotEmpty", "Instance is undefined.");
     }
-    if (instance == null) {
+    if (instance === null) {
         throw new BytecodeRunnerFatalErrorSignal("RequireNotEmpty", "Instance is null.");
     }
     return instance;
 };
 const GlobalThis = self;
-var MessageType = {
+const MessageType = {
     "M2W": {
         "LifeCycle": {
             "InitMessageChannel": "M2W:LifeCycle.InitMessageChannel"
@@ -83,14 +75,11 @@ var MessageType = {
     }
 };
 class AppWorker {
+    static instance = null;
+    canvas = null;
+    canvas2DContext = null;
+    messageCache = [];
     constructor() {
-        this.canvas = null;
-        this.canvas2DContext = null;
-        this.messageCache = [];
-        this.commitUIDelegate = () => { };
-        this.pumpMessagesDelegate = () => { };
-        this.postMessageDelegate = () => { };
-        this.getMessageDelegate = () => null;
     }
     static getInstance() {
         if (AppWorker.instance == null) {
@@ -104,15 +93,22 @@ class AppWorker {
     getContext2D() {
         return RequireNotEmpty(this.canvas2DContext);
     }
+    commitUIDelegate = () => {
+    };
     commitUI() {
         this.commitUIDelegate();
     }
+    pumpMessagesDelegate = () => {
+    };
     pumpMessages() {
         this.pumpMessagesDelegate();
     }
-    postMessage(message) {
-        this.postMessageDelegate(message);
+    postMessageDelegate = () => {
+    };
+    postMessage(message, transfer) {
+        this.postMessageDelegate(message, transfer);
     }
+    getMessageDelegate = () => null;
     getMessage() {
         return this.getMessageDelegate();
     }
@@ -130,10 +126,11 @@ class AppWorker {
                 currentAPP.canvas = new OffscreenCanvas(screenSize[0], screenSize[1]);
                 currentAPP.canvas2DContext = RequireNotEmpty(currentAPP.canvas.getContext("2d"));
                 currentAPP.commitUIDelegate = () => {
+                    let bitmap = RequireNotEmpty(currentAPP.canvas).transferToImageBitmap();
                     currentAPP.postMessage({
                         "messageType": MessageType.W2M.GUI.RenderBitMap,
-                        "messageBody": RequireNotEmpty(currentAPP.canvas).transferToImageBitmap()
-                    });
+                        "messageBody": bitmap
+                    }, [bitmap]);
                 };
             }
             else {
@@ -166,8 +163,13 @@ class AppWorker {
                     }
                 }
             };
-            currentAPP.postMessageDelegate = (message) => {
-                GlobalThis.postMessage(message);
+            currentAPP.postMessageDelegate = (message, transfer) => {
+                if (transfer == undefined) {
+                    GlobalThis.postMessage(message);
+                }
+                else {
+                    GlobalThis.postMessage(message, transfer);
+                }
             };
             currentAPP.getMessageDelegate = () => {
                 currentAPP.pumpMessages();
@@ -197,11 +199,9 @@ class AppWorker {
         });
     }
 }
-AppWorker.instance = null;
 var PyObjectType;
 var PythonRuntime;
 var PythonConfiguration;
-var PythonResources = new Map();
 var PythonBuiltin;
 var PyObjectMethods;
 PyObjectType = {
@@ -261,6 +261,9 @@ PyObjectMethods = {
     'py_internal': Symbol('py_internal')
 };
 class PyErrorInformation {
+    namespace;
+    className;
+    methodName;
     constructor(namespace, className, methodName) {
         this.namespace = namespace;
         this.className = className;
@@ -268,6 +271,7 @@ class PyErrorInformation {
     }
 }
 class PyObjectBase {
+    type;
     constructor() {
         this.type = PyObjectType.Base;
     }
@@ -349,10 +353,10 @@ class PyObjectBase {
                 "name": "python:object@instance.methodWrapper",
                 "attr": {},
                 "py_function_call": {
-                    "argNum": [PythonConfiguration.codeObjectList[PyObject0.commandCode.commandEnv].arg - 1],
+                    "argNum": [PythonConfiguration.codeObjectList[PyObject0.commandCode.commandEnv].argNum - 1],
                     "method": function () {
-                        PythonRuntime.storage.varStack.splice(PythonRuntime.storage.varStack.length - PythonConfiguration.codeObjectList[PyObject0.commandCode.commandEnv].arg + 1, 0, PyThis);
-                        PyObject0.py_function_call(PythonConfiguration.codeObjectList[PyObject0.commandCode.commandEnv].arg);
+                        PythonRuntime.storage.varStack.splice(PythonRuntime.storage.varStack.length - PythonConfiguration.codeObjectList[PyObject0.commandCode.commandEnv].argNum + 1, 0, PyThis);
+                        PyObject0.py_function_call(PythonConfiguration.codeObjectList[PyObject0.commandCode.commandEnv].argNum);
                     }
                 },
                 "$": ""
@@ -370,24 +374,15 @@ class PyObjectBase {
     }
 }
 class PyObjectStoragePointer extends PyObjectBase {
-    constructor(getter, setter) {
+    value;
+    constructor(value) {
         super();
         this.type = PyObjectType.StoragePointer;
-        this.getter = getter;
-        this.setter = setter;
-    }
-    get() {
-        let value = this.getter();
-        if (value == null || value == undefined) {
-            PythonRuntime.storage.pyError.write(new PyObjectNameError(new PyErrorInformation("python", "pointer", PyObjectMethods.py_internal)));
-        }
-        return value;
-    }
-    set(PyObject0) {
-        this.setter(PyObject0);
+        this.value = value;
     }
 }
 class PyObjectInt extends PyObjectBase {
+    value;
     constructor(value) {
         super();
         this.value = value;
@@ -564,6 +559,7 @@ class PyObjectInt extends PyObjectBase {
     }
 }
 class PyObjectString extends PyObjectBase {
+    value;
     constructor(value) {
         super();
         this.value = value;
@@ -615,6 +611,7 @@ class PyObjectNone extends PyObjectBase {
     }
 }
 class PyObjectBool extends PyObjectBase {
+    value;
     constructor(value) {
         super();
         this.value = value;
@@ -637,7 +634,7 @@ class PyObjectBool extends PyObjectBase {
         }
     }
     py_int() {
-        if (this.value === true) {
+        if (this.value) {
             PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectInt(1));
         }
         else {
@@ -645,7 +642,7 @@ class PyObjectBool extends PyObjectBase {
         }
     }
     py_str() {
-        if (this.value === true) {
+        if (this.value) {
             PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString('True'));
         }
         else {
@@ -656,7 +653,7 @@ class PyObjectBool extends PyObjectBase {
         PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectBool(this.value));
     }
     py_repr() {
-        if (this.value === true) {
+        if (this.value) {
             PythonRuntime.storage.varStack.push(PyObjectFactory.constructPyObjectString('True'));
         }
         else {
@@ -665,6 +662,9 @@ class PyObjectBool extends PyObjectBase {
     }
 }
 class PyObjectGlobal extends PyObjectBase {
+    value;
+    attr;
+    storage;
     constructor(value, storage) {
         super();
         this.value = value;
@@ -699,7 +699,7 @@ class PyObjectGlobal extends PyObjectBase {
                     break;
                 }
             }
-            if (flag === false) {
+            if (!flag) {
                 PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('python', 'global', PyObjectMethods.py_binary_subscr)));
             }
             else {
@@ -722,7 +722,7 @@ class PyObjectGlobal extends PyObjectBase {
                     break;
                 }
             }
-            if (flag === false) {
+            if (!flag) {
                 PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('python', 'global', PyObjectMethods.py_function_call)));
             }
             else {
@@ -789,6 +789,7 @@ class PyObjectGlobal extends PyObjectBase {
     }
 }
 class PyObjectTuple extends PyObjectBase {
+    value;
     constructor(value) {
         super();
         this.value = [];
@@ -845,6 +846,7 @@ class PyObjectTuple extends PyObjectBase {
     }
 }
 class PyObjectList extends PyObjectBase {
+    value;
     constructor(value) {
         super();
         this.value = [];
@@ -1005,6 +1007,7 @@ class PyObjectList extends PyObjectBase {
     }
 }
 class PyObjectCode extends PyObjectBase {
+    commandEnv;
     constructor(value) {
         super();
         this.commandEnv = value;
@@ -1012,6 +1015,10 @@ class PyObjectCode extends PyObjectBase {
     }
 }
 class PyObjectFunction extends PyObjectBase {
+    name;
+    commandCode;
+    cellVarTuple;
+    defaultArgs;
     constructor(name, commandCode, cellVarTuple, defaultArgs) {
         super();
         this.type = PyObjectType.FunctionObject;
@@ -1021,10 +1028,10 @@ class PyObjectFunction extends PyObjectBase {
         this.defaultArgs = defaultArgs;
     }
     py_function_call(argNum) {
-        if (argNum > PythonConfiguration.codeObjectList[this.commandCode.commandEnv].arg) {
+        if (argNum > PythonConfiguration.codeObjectList[this.commandCode.commandEnv].argNum) {
             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('python', 'Function', PyObjectMethods.py_function_call)));
         }
-        else if (argNum + this.defaultArgs.length < PythonConfiguration.codeObjectList[this.commandCode.commandEnv].arg) {
+        else if (argNum + this.defaultArgs.length < PythonConfiguration.codeObjectList[this.commandCode.commandEnv].argNum) {
             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('python', 'Function', PyObjectMethods.py_function_call)));
         }
         PythonRuntime.storage.newStack(this.commandCode.commandEnv);
@@ -1041,6 +1048,9 @@ class PyObjectFunction extends PyObjectBase {
     }
 }
 class PyObjectClass extends PyObjectBase {
+    bases;
+    name;
+    constructorFunction;
     constructor(bases, name, constructorFunction) {
         super();
         this.bases = bases;
@@ -1049,7 +1059,7 @@ class PyObjectClass extends PyObjectBase {
         this.type = PyObjectType.Class;
     }
     py_function_call(argNum) {
-        if (0 !== PythonConfiguration.codeObjectList[this.constructorFunction.commandCode.commandEnv].arg) {
+        if (0 !== PythonConfiguration.codeObjectList[this.constructorFunction.commandCode.commandEnv].argNum) {
             PythonRuntime.storage.pyError.write(new PyObjectTypeError(new PyErrorInformation('python', 'Function', PyObjectMethods.py_function_call)));
         }
         PythonRuntime.storage.newStack(this.constructorFunction.commandCode.commandEnv);
@@ -1084,6 +1094,8 @@ class PyObjectClass extends PyObjectBase {
     }
 }
 class PyObjectClassObject extends PyObjectBase {
+    proto;
+    member;
     constructor(proto, member) {
         super();
         this.type = PyObjectType.ClassObject;
@@ -1111,6 +1123,7 @@ class PyObjectClassObject extends PyObjectBase {
     }
 }
 class PyBlockLoop extends PyObjectBase {
+    breakCommandIndex;
     constructor(breakCommandIndex) {
         super();
         this.type = PyObjectType.Loop;
@@ -1118,6 +1131,7 @@ class PyBlockLoop extends PyObjectBase {
     }
 }
 class PyBlockExcept extends PyObjectBase {
+    exceptBlockOpIndex;
     constructor(value) {
         super();
         this.exceptBlockOpIndex = value;
@@ -1137,6 +1151,7 @@ class PyBlockFunctionCall extends PyObjectBase {
     }
 }
 class PyObjectErrorBase extends PyObjectBase {
+    value;
     constructor() {
         super();
         this.value = new PyErrorInformation("python", "errorbase", PyObjectMethods.py_internal);
@@ -1210,7 +1225,7 @@ var PyObjectFactory = {
         };
     })(),
     "constructPyObjectString": (function () {
-        return (value, commitCache) => new PyObjectString(value);
+        return (value) => new PyObjectString(value);
     })(),
     "constructPyObjectCode": (function () {
         let cache = new Map();
@@ -1225,7 +1240,7 @@ var PyObjectFactory = {
         let trueCache = new PyObjectBool(true);
         let falseCache = new PyObjectBool(false);
         return (value) => {
-            if (value === true) {
+            if (value) {
                 return trueCache;
             }
             else {
@@ -1502,24 +1517,101 @@ PythonBuiltin = {
         "$": ""
     }
 };
+var PythonPacakgeHelper = (() => {
+    let loadedPackages = new Map();
+    let loadPackage = function (packageID) {
+        let value = loadedPackages.get(packageID);
+        if (value instanceof Promise) {
+            return value;
+        }
+        else if (value !== undefined) {
+            return new Promise((resolve, _reject) => resolve(undefined));
+        }
+        let promise = (async () => await fetch(StringFormat("packages/{}.js", [packageID])))()
+            .then(response => response.blob())
+            .then(blob => {
+            let url = URL.createObjectURL(blob);
+            try {
+                GlobalThis.importScripts(url);
+            }
+            catch (e) {
+                try {
+                    URL.revokeObjectURL(url);
+                }
+                catch (ignored) {
+                }
+                throw e;
+            }
+            if (loadedPackages.get(packageID) instanceof Promise) {
+                throw new BytecodeRunnerFatalErrorSignal("PythonPackageHelper.loadPackage", StringFormat("Package {} is loaded but it defines nothing.", [packageID]));
+            }
+        });
+        loadedPackages.set(packageID, promise);
+        return promise;
+    };
+    return {
+        "definePackage": function (pkg) {
+            if (!loadedPackages.has(pkg.id)) {
+                throw new BytecodeRunnerFatalErrorSignal("PythonPackageHelper.loadPackage", StringFormat("Package {} is defined before it's loaded.", [pkg.id]));
+            }
+            loadedPackages.set(pkg.id, pkg);
+            this.loadPackages(pkg.dependencies);
+        },
+        "loadPackages": function (packages) {
+            for (let i = 0; i < packages.length; i++) {
+                loadPackage(packages[i]);
+            }
+        },
+        "park": async function () {
+            loop: while (true) {
+                let iterator = loadedPackages.values();
+                let item;
+                while (true) {
+                    item = iterator.next();
+                    if (item.done) {
+                        break loop;
+                    }
+                    if (item.value instanceof Promise) {
+                        await item.value;
+                        break;
+                    }
+                }
+            }
+            let iterator = loadedPackages.values();
+            while (true) {
+                let item = iterator.next();
+                if (item.done) {
+                    break;
+                }
+                if (item.value instanceof Promise) {
+                    throw new BytecodeRunnerFatalErrorSignal("PythonPackageHelper.loadPackage", "Some packages were defined but not loaded.");
+                }
+                Object.assign(PythonBuiltin, item.value.onRegisterGlobalPyObject());
+            }
+        }
+    };
+})();
 class AbstractBytecodeRunnerResult {
 }
 class BytecodeRunnerNextResult extends AbstractBytecodeRunnerResult {
 }
 var BytecodeRunnerNextResultInstance = new BytecodeRunnerNextResult();
 class BytecodeRunnerJumpResult extends AbstractBytecodeRunnerResult {
+    commandIndex;
     constructor(commandIndex) {
         super();
         this.commandIndex = commandIndex;
     }
 }
 class BytecodeRunnerReturnResult extends AbstractBytecodeRunnerResult {
+    returnValue;
     constructor(returnValue) {
         super();
         this.returnValue = returnValue;
     }
 }
 class BytecodeRunnerExtendArgResult extends AbstractBytecodeRunnerResult {
+    extendedArg;
     constructor(extendedArg) {
         super();
         this.extendedArg = extendedArg;
@@ -1527,13 +1619,16 @@ class BytecodeRunnerExtendArgResult extends AbstractBytecodeRunnerResult {
 }
 class AbstractBytecodeRunnerSignal {
 }
-class BytecodeRunnerExitSIgnal extends AbstractBytecodeRunnerSignal {
+class BytecodeRunnerExitSignal extends AbstractBytecodeRunnerSignal {
+    exitCode;
     constructor(exitCode) {
         super();
         this.exitCode = exitCode;
     }
 }
 class BytecodeRunnerFatalErrorSignal extends AbstractBytecodeRunnerSignal {
+    place;
+    msg;
     constructor(place, msg) {
         super();
         this.place = place;
@@ -1572,12 +1667,7 @@ PythonRuntime = {
             PythonRuntime.storage.varList.push(newVarList);
             let newCellVarList = [];
             for (let i = 0; i < PythonConfiguration.codeObjectList[commandEnv].cellVarList.length; i++) {
-                let PyObject0;
-                newCellVarList.push(new PyObjectStoragePointer(() => {
-                    return PyObject0;
-                }, (PyObject1) => {
-                    PyObject0 = PyObject1;
-                }));
+                newCellVarList.push(new PyObjectStoragePointer(null));
             }
             PythonRuntime.storage.cellVarList.push(newCellVarList);
             let newGlobalVarList = [];
@@ -1909,7 +1999,7 @@ PythonRuntime = {
             case 114: {
                 RequireNotEmpty(PythonRuntime.storage.varStack.pop()).py_bool();
                 let PyObject0 = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
-                if (PyObject0.value === false) {
+                if (!PyObject0.value) {
                     return new BytecodeRunnerJumpResult(commandArg);
                 }
                 else {
@@ -1919,7 +2009,7 @@ PythonRuntime = {
             case 115: {
                 RequireNotEmpty(PythonRuntime.storage.varStack.pop()).py_bool();
                 let PyObject0 = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
-                if (PyObject0.value === true) {
+                if (PyObject0.value) {
                     return new BytecodeRunnerJumpResult(commandArg);
                 }
                 else {
@@ -2025,7 +2115,6 @@ PythonRuntime = {
                     }
                     else {
                         throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Runner.MakeFunction.FunctionDefaultArgs", "Function's default args should be an instance of tuple.");
-                        ;
                     }
                 }
                 else {
@@ -2036,21 +2125,7 @@ PythonRuntime = {
                 return BytecodeRunnerNextResultInstance;
             }
             case 135: {
-                let cellVarStack = PythonRuntime.storage.stackPointer - 1;
-                let cellVarPointer = commandArg;
-                PythonRuntime.storage.varStack.push(new PyObjectStoragePointer(() => {
-                    let stack = PythonRuntime.storage.cellVarList[cellVarStack];
-                    if (stack == undefined || stack == null) {
-                        return null;
-                    }
-                    return RequireNotEmpty(stack[cellVarPointer]).get();
-                }, (PyObject0) => {
-                    let stack = PythonRuntime.storage.cellVarList[cellVarStack];
-                    if (stack == undefined || stack == null) {
-                        return;
-                    }
-                    RequireNotEmpty(stack[cellVarPointer]).set(PyObject0);
-                }));
+                PythonRuntime.storage.varStack.push(RequireNotEmpty(RequireNotEmpty(PythonRuntime.storage.cellVarList[PythonRuntime.storage.stackPointer - 2])[commandArg]));
                 return BytecodeRunnerNextResultInstance;
             }
             case 136: {
@@ -2058,11 +2133,11 @@ PythonRuntime = {
                 if (cellVars == null) {
                     PythonRuntime.storage.pyError.write(new PyObjectNameError(new PyErrorInformation("python", "$BytecodeRunner$.Runner.LoadDeref", PyObjectMethods.py_internal)));
                 }
-                PythonRuntime.storage.varStack.push(RequireNotEmpty(cellVars).get());
+                PythonRuntime.storage.varStack.push(RequireNotEmpty(cellVars).value);
                 return BytecodeRunnerNextResultInstance;
             }
             case 137: {
-                RequireNotEmpty(PythonRuntime.storage.cellVarList[PythonRuntime.storage.stackPointer - 1][commandArg]).set(RequireNotEmpty(PythonRuntime.storage.varStack.pop()));
+                RequireNotEmpty(PythonRuntime.storage.cellVarList[PythonRuntime.storage.stackPointer - 1][commandArg]).value = RequireNotEmpty(PythonRuntime.storage.varStack.pop());
                 return BytecodeRunnerNextResultInstance;
             }
             case 138: {
@@ -2115,10 +2190,7 @@ PythonRuntime = {
                 }
             }
             catch (error) {
-                if (!(error instanceof AbstractBytecodeRunnerSignal)) {
-                    throw error;
-                }
-                else if (error instanceof BytecodeRunnerFatalErrorSignal) {
+                if (!(error instanceof AbstractBytecodeRunnerSignal) || error instanceof BytecodeRunnerFatalErrorSignal) {
                     throw error;
                 }
                 else if (error instanceof BytecodeRunnerPyErrorSignal) {
@@ -2149,41 +2221,15 @@ PythonRuntime = {
         }
     }
 };
-(() => __awaiter(this, void 0, void 0, function* () {
-    PythonConfiguration = yield (yield fetch("configuration.json")).json();
-}))().then(() => __awaiter(this, void 0, void 0, function* () {
-    yield new Promise((resolve, reject) => {
+(async () => {
+    PythonConfiguration = await (await fetch("configuration.json")).json();
+})().then(async () => {
+    await new Promise((resolve, reject) => {
         AppWorker.getInstance().launch(() => {
-            (() => __awaiter(this, void 0, void 0, function* () {
-                let promises = [];
-                for (let i = 0; i < PythonConfiguration.resources.length; i++) {
-                    let resource = PythonConfiguration.resources[i];
-                    switch (resource.type) {
-                        case "Image": {
-                            promises.push({
-                                "type": "Image",
-                                "value": fetch(StringFormat("resources/{}", [PythonConfiguration.resources[i].path])).then(response => response.blob()).then(blob => createImageBitmap(blob))
-                            });
-                            break;
-                        }
-                        default: {
-                            throw new BytecodeRunnerFatalErrorSignal("BytecodeRunner.Resources.UnknownType", StringFormat("Unknown resource type {} in resources #{}.", [resource.type, i.toString()]));
-                        }
-                    }
-                }
-                for (let i = 0; i < PythonConfiguration.requiredPackages.length; i++) {
-                    if (PythonConfiguration.requiredPackages[i] in PythonBuiltin) {
-                        continue;
-                    }
-                    GlobalThis.importScripts(StringFormat("packages/{}.js", [PythonConfiguration.requiredPackages[i]]));
-                }
-                for (let i = 0; i < promises.length; i++) {
-                    PythonResources.set(PythonConfiguration.resources[i].path, {
-                        "type": PythonConfiguration.resources[i].type,
-                        "value": yield promises[i].value
-                    });
-                }
-            }))().then(() => {
+            (async () => {
+                PythonPacakgeHelper.loadPackages(PythonConfiguration.requiredPackages);
+                await PythonPacakgeHelper.park();
+            })().then(() => {
                 PythonRuntime.storage.newStack(0);
                 for (let codeObjectIndex = 0; codeObjectIndex < PythonConfiguration.codeObjectList.length; codeObjectIndex++) {
                     for (let constIndex = 0; constIndex < PythonConfiguration.codeObjectList[codeObjectIndex].constList.length; constIndex++) {
@@ -2257,9 +2303,7 @@ PythonRuntime = {
                     let pyError = RequireNotEmpty(PythonRuntime.storage.pyError.value).value;
                     let pyErrorType;
                     let pyErrorProto = RequireNotEmpty(PythonRuntime.storage.pyError.value).__proto__;
-                    if (pyErrorProto == null || pyErrorProto == undefined ||
-                        pyErrorProto.constructor == null || pyErrorProto.constructor == undefined ||
-                        typeof pyErrorProto.constructor.name != "string") {
+                    if (typeof pyErrorProto?.constructor?.name != "string") {
                         pyErrorType = "UNKNOWN";
                     }
                     else {
@@ -2274,7 +2318,7 @@ PythonRuntime = {
                 let time = performance.now() - startTime;
                 let returnValue = PythonRuntime.storage.varStack.pop();
                 let exitCode;
-                if (returnValue == null || returnValue == undefined || returnValue.type == PyObjectType.None) {
+                if (returnValue == null || returnValue.type == PyObjectType.None) {
                     exitCode = 0;
                 }
                 else if (returnValue.type == PyObjectType.Int) {
@@ -2307,13 +2351,13 @@ PythonRuntime = {
                 }
                 AppWorker.getInstance().postMessage({
                     "messageType": MessageType.W2M.Console.Stdout,
-                    "messageBody": StringFormat("# An fatal error encountered. Python Virtual Machine will shut down forcely.\n" +
+                    "messageBody": StringFormat("# An fatal error encountered. WebPython Virtual Machine will shut down forcely.\n" +
                         "# [{}]: {}\n" +
-                        "# Please report this bug to the developer.", [place, msg])
+                        "# Please check your usage of webpygame.unsafe package, and consider reporting this bug to the developers of WebPygame.", [place, msg])
                 });
                 AppWorker.getInstance().exit(1);
                 reject(error);
             });
         }, PythonConfiguration.screenSize);
     });
-}));
+});

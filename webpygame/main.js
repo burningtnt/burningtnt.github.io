@@ -102,43 +102,52 @@ class MessageCacheQueue {
 }
 class ConsoleRenderer {
     constructor(consoleCanvas, size) {
-        this.text = "";
+        this.textCache = "";
+        this.lines = [""];
+        this.index = 0;
         this.size = size;
         this.pen = RequireNotEmpty(consoleCanvas.getContext("2d"));
+        this.pen.fillStyle = "black";
+        this.pen.fillRect(0, 0, consoleCanvas.width, consoleCanvas.height);
+        this.pen.font = this.size.toString() + "px";
+        this.pen.textAlign = 'left';
+        this.pen.textBaseline = 'top';
+        this.pen.fillStyle = 'white';
     }
     pushText(text) {
-        this.text += text;
+        this.textCache += text;
     }
-    render() {
-        let lines = [""];
-        for (let i = 0; i < this.text.length; i++) {
-            switch (this.text[i]) {
+    format() {
+        if (this.textCache.length == 0) {
+            return;
+        }
+        for (let i = 0; i < this.textCache.length; i++) {
+            switch (this.textCache[i]) {
                 case "\n": {
-                    lines.push("");
+                    this.lines.push("");
                     break;
                 }
                 case "\r": {
-                    lines[lines.length - 1] = "";
+                    this.lines[this.lines.length - 1] = "";
                     break;
                 }
                 default: {
-                    lines[lines.length - 1] += this.text[i];
+                    this.lines[this.lines.length - 1] += this.textCache[i];
                 }
             }
         }
-        this.pen.font = this.size.toString() + "px";
-        this.pen.fillStyle = 'black';
-        this.pen.textAlign = 'left';
-        this.pen.textBaseline = 'top';
-        this.pen.fillRect(0, 0, this.pen.canvas.width, this.pen.canvas.height);
-        this.pen.fillStyle = 'white';
-        for (let i = 0; i < lines.length; i++) {
-            this.pen.fillText(lines[i], 0, i * this.size);
+        this.textCache = "";
+    }
+    render() {
+        this.format();
+        for (let i = this.index; i < this.lines.length - 1; i++) {
+            this.pen.fillText(this.lines[i], 0, i * this.size);
         }
+        this.index = this.lines.length - 1;
     }
 }
 class App {
-    constructor(consoleCanvas, uiCanvas, workerProvider) {
+    constructor(consoleCanvas, uiCanvas, workerProvider, showConsole) {
         this.uiCanvasBitMapRenderer = null;
         this.messageCache = new MessageCacheQueue(64);
         this.launched = false;
@@ -146,6 +155,7 @@ class App {
         this.uiCanvas = uiCanvas;
         this.workerProvider = workerProvider;
         this.messagePosterDelegate = null;
+        this.showConsole = showConsole == undefined ? true : showConsole;
         this.consoleRenderer = new ConsoleRenderer(consoleCanvas, 14);
     }
     runtimeOnMessageHandler(message) {
@@ -157,20 +167,27 @@ class App {
                 break;
             }
             case MessageType.W2M.LifeCycle.Exit: {
-                this.consoleRenderer.render();
+                if (this.showConsole) {
+                    this.consoleRenderer.render();
+                }
                 break;
             }
             case MessageType.W2M.Console.Stdout: {
-                this.consoleRenderer.pushText(message.messageBody);
+                if (this.showConsole) {
+                    this.consoleRenderer.pushText(message.messageBody);
+                }
                 break;
             }
             case MessageType.W2M.Console.Flush: {
-                this.consoleRenderer.render();
+                if (this.showConsole) {
+                    this.consoleRenderer.render();
+                }
                 break;
             }
             case MessageType.W2M.GUI.RenderBitMap: {
                 if (this.uiCanvasBitMapRenderer != null) {
                     this.uiCanvasBitMapRenderer.transferFromImageBitmap(message.messageBody);
+                    message.messageBody.close();
                 }
             }
         }
@@ -178,19 +195,19 @@ class App {
     haslaunched() {
         return this.launched;
     }
-    launch(onError, showConsole) {
+    launch(onError) {
         this.launched = true;
         if (SharedArrayBuffer == undefined) {
-            onError();
+            onError("NO_SHARED_ARRAY_BUFFER");
             return;
         }
         if (HTMLCanvasElement.prototype.transferControlToOffscreen == undefined || OffscreenCanvasRenderingContext2D.prototype.commit == undefined) {
             if (ImageBitmapRenderingContext == undefined || ImageBitmapRenderingContext.prototype.transferFromImageBitmap == undefined) {
-                onError();
+                onError("NO_COMMIT_API");
                 return;
             }
         }
-        if (showConsole == false) {
+        if (!this.showConsole) {
             this.consoleCanvas.style.display = "none";
             this.uiCanvas.requestFullscreen({ "navigationUI": "hide" });
         }
@@ -374,14 +391,14 @@ class App {
         return this.uiCanvas;
     }
 }
-var WebPygame = new App(RequireNotEmpty(document.getElementById("consoleCanvas")), RequireNotEmpty(document.getElementById("guiCanvas")), () => new Worker("worker.js"));
+var WebPygame = new App(RequireNotEmpty(document.getElementById("consoleCanvas")), RequireNotEmpty(document.getElementById("guiCanvas")), () => new Worker("worker.js"), false);
 document.documentElement.addEventListener("mousedown", () => {
     if (!WebPygame.haslaunched()) {
-        WebPygame.launch(() => alert("Unsupported browser!"), false);
+        WebPygame.launch((errorType) => alert("Unsupported browser! Error Message: " + errorType));
     }
 });
 document.documentElement.addEventListener("touchstart", () => {
     if (!WebPygame.haslaunched()) {
-        WebPygame.launch(() => console.error("Unsupported browser!"), false);
+        WebPygame.launch((errorType) => alert("Unsupported browser! Error Message: " + errorType));
     }
 });
